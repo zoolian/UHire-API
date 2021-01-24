@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: uhire-api
+  annotations:
+    #kubernetes.io/ingress.global-static-ip-name: address-name  ##gcloud compute addresses create address-name --global
+    networking.gke.io/managed-certificates: api2-jmscottnovels-com-tls
+spec:
+  rules:
+  - host: api1.uhirenovels.com
+    http:
+      paths:
+      - backend:
+          serviceName: uhire-api-svc
+          servicePort: 8080
