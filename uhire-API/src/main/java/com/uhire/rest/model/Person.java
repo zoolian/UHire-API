@@ -18,7 +18,16 @@ public class Person {
 	//private Address address;
 	private String email;
 	
-	private int age;
+	private int age;	
+	
+	public Person() {}
+	
+	public Person(String firstName, String lastName, String email, int age) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
+		this.age = age;
+	}
 	
 	public String getId() {
 		return id;

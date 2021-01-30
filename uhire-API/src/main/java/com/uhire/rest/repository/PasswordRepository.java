@@ -8,6 +8,5 @@ import com.uhire.rest.model.Password;
 
 @Repository
 public interface PasswordRepository extends MongoRepository<Password, String>, QuerydslPredicateExecutor<Password>  {
-
-	Password findByUserId(String id);
+	Password findByPersonId(String id);
 }

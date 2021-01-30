@@ -25,7 +25,7 @@ import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
 @RequestMapping(path = "/job-function-needs")
-@CrossOrigin(origins = {"http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3003", "http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
 public class JobFunctionNeedController {
 
 	@Autowired
@@ -34,7 +34,7 @@ public class JobFunctionNeedController {
 	@Autowired
 	private InstanceInfoService instanceInfoService;
 	     
-	@GetMapping
+	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
 		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
 	}
@@ -59,7 +59,7 @@ public class JobFunctionNeedController {
 		need.setEnabled(true);
 		
 		JobFunctionNeed newNeed = jobFunctionNeedRepository.save(need);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 				.buildAndExpand(newNeed.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}

@@ -25,7 +25,7 @@ import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
 @RequestMapping(path = "/job-positions")
-@CrossOrigin(origins= {"http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
+@CrossOrigin(origins= {"http://localhost:3003", "http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
 public class JobPositionController {
 
 	@Autowired
@@ -34,7 +34,7 @@ public class JobPositionController {
 	@Autowired
 	private InstanceInfoService instanceInfoService;
 	     
-	@GetMapping
+	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
 		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
 	}
@@ -58,7 +58,7 @@ public class JobPositionController {
 		position.setId(null); // ensure mongo is creating id
 		
 		JobPosition newPosition = jobPositionRepository.save(position);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 				.buildAndExpand(newPosition.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}

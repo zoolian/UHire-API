@@ -1,4 +1,4 @@
-package com.jmscott.rest.SecurityManagement;
+package com.old.jmscott.rest.SecurityManagement;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,9 +1,9 @@
 package com.uhire.rest.model;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,18 +11,16 @@ import com.uhire.rest.EmployeeStatus;
 import com.uhire.rest.PayType;
 import com.uhire.rest.TaskStatus;
 import com.uhire.rest.WorkFrequency;
-import com.uhire.rest.annotation.CascadeSave;
 
-@Document
-public class Employee {
+@Document(collection = "person")
+public class Employee extends User {
+	
+	public Employee(String firstName, String lastName, String email, int age, String username,
+			boolean enabled, Collection<Role> roles) {
+		super(firstName, lastName, email, age, username, enabled, roles);
+		// TODO Auto-generated constructor stub
+	}
 
-	@Id
-	private String id;
-	
-	@DBRef
-	@CascadeSave
-	private User user;
-	
 	@DBRef
 	private JobPosition position;
 	
@@ -44,22 +42,6 @@ public class Employee {
 		}
 
 		return true;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
 	}
 
 	public JobPosition getPosition() {

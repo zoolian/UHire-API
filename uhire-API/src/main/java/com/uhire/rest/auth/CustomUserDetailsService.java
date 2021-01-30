@@ -69,8 +69,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	
 	private JwtUserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
 		
-		return new JwtUserDetails(user.getId(), user.getUsername(), passwordRepository.findByUserId(user.getId()).getPassword(), authorities);
-		//return new JwtUserDetails(user.getId(), user.getUsername(), user.getPassword(), authorities);
+		return new JwtUserDetails(user.getId(), user.getUsername(), passwordRepository.findByPersonId(user.getId()).getPassword(), authorities);
 	}
 
 	private List<GrantedAuthority> getUserAuthority(Collection<Role> collection) {

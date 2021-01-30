@@ -8,12 +8,12 @@ public class Password {
 	@Id
 	private String id;
 	
-	private String userId;
+	private String personId;
 	
 	private String password;
 
-	public Password(String userId, String password) {
-		this.userId = userId;
+	public Password(String personId, String password) {
+		this.personId = personId;
 		this.password = password;
 	}
 
@@ -26,11 +26,11 @@ public class Password {
 	}
 
 	public String getUserId() {
-		return userId;
+		return personId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(String personId) {
+		this.personId = personId;
 	}
 
 	public String getPassword() {
@@ -43,7 +43,7 @@ public class Password {
 
 	@Override
 	public String toString() {
-		return "Password [id=" + id + ", userId=" + userId + ", password=" + password + "]";
+		return "Password [id=" + id + ", personId=" + personId + ", password=" + password + "]";
 	}
 	
 	

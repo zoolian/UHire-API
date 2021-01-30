@@ -42,7 +42,7 @@ import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
 @RequestMapping(path = "/employees")
-@CrossOrigin(origins= {"http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
+@CrossOrigin(origins= {"http://localhost:3003", "http://localhost:3001", "http://localhost:3000", "https://uhire.jmscottnovels.com"}, allowCredentials = "true")
 public class EmployeeController {
 
 	@Autowired
@@ -51,7 +51,7 @@ public class EmployeeController {
 	@Autowired
 	private InstanceInfoService instanceInfoService;
 	     
-	@GetMapping
+	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
 		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
 	}
@@ -87,7 +87,7 @@ public class EmployeeController {
 		}
 		
 		Employee newEmp = employeeRepository.save(emp);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 				.buildAndExpand(newEmp.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
@@ -107,7 +107,7 @@ public class EmployeeController {
 				}
 			}
 			recipients = recipients.substring(0, recipients.length()-1);
-			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getUser().getPerson().getFirstName() + savedEmployee.getUser().getPerson().getLastName(), recipients);
+			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + savedEmployee.getLastName(), recipients);
 		}
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
 	}

@@ -19,7 +19,7 @@ import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties
 
 @Configuration
 @EnableEncryptableProperties
-@EnableMongoRepositories(basePackages = "com.jmscott.rest.repository")
+@EnableMongoRepositories(basePackages = "com.uhire.rest.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
 	@Override
@@ -36,7 +36,6 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 	@Override
 	public MongoClient mongoClient() {
 		final ConnectionString connectionString = new ConnectionString(mongoUrl);
-		//final ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017/jmscott");
 		final MongoCredential mongoCredential = MongoCredential.createCredential("admin", "admin", mongoPass.toCharArray());
 		
 		final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
@@ -48,7 +47,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 	
 	@Override
 	public Collection<String> getMappingBasePackages() {
-		return Collections.singleton("com.jmscott");
+		return Collections.singleton("com.uhire");
 	}
 	
 	@Bean
