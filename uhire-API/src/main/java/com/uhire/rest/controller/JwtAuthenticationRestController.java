@@ -53,7 +53,7 @@ import com.uhire.rest.service.InstanceInfoService;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @RestController
-@RequestMapping(path = "/auth")
+@RequestMapping
 @CrossOrigin(origins= {"http://localhost:3003", "http://localhost:3001", "http://localhost:3000", "https://security.jmscottnovels.com", "https://blog.jmscottnovels.com"}, allowCredentials = "true")
 public class JwtAuthenticationRestController {
 
@@ -74,8 +74,8 @@ public class JwtAuthenticationRestController {
   
   @Autowired
   private InstanceInfoService instanceInfoService;
-     
-  @GetMapping
+
+@GetMapping
   public ResponseEntity<?> healthCheck() {
 	  return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
   }
@@ -174,7 +174,7 @@ public class JwtAuthenticationRestController {
 
 	  return ResponseEntity.ok(username);
   }
-
+  
   @ExceptionHandler({ AuthenticationException.class })
   public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());

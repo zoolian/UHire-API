@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uhire.rest.EmployeeStatus;
 import com.uhire.rest.PayType;
 import com.uhire.rest.TaskStatus;
@@ -34,13 +35,13 @@ public class Employee extends User {
 	
 	private EmployeeStatus status;
 	
+	@JsonIgnore
 	public boolean isOnboardingComplete() {
 		for(EmployeeJobFunctionNeed need : this.needs) {
 			if(need.getStatus() != TaskStatus.COMPLETED) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
