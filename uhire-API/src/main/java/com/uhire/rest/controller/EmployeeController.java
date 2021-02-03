@@ -106,8 +106,8 @@ public class EmployeeController {
 					recipients += person.getEmail() + ",";
 				}
 			}
-			recipients = recipients.substring(0, recipients.length()-1);
-			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + savedEmployee.getLastName(), recipients);
+			recipients = recipients.substring(0, recipients.length()-1);	// remove trailing comma after loop
+			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
 		}
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
 	}

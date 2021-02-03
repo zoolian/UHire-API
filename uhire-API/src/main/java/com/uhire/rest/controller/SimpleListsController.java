@@ -37,7 +37,12 @@ public class SimpleListsController {
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
-	     
+
+	@GetMapping(path = "/")
+	public ResponseEntity<?> healthCheckDefault() {
+		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
+	}
+	
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
 		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");

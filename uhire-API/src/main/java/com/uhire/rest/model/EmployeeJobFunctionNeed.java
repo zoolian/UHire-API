@@ -2,7 +2,7 @@ package com.uhire.rest.model;
 
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import com.uhire.rest.TaskStatus;
+import com.uhire.rest.model.lists.TaskStatus;
 
 public class EmployeeJobFunctionNeed {
 	
@@ -12,7 +12,8 @@ public class EmployeeJobFunctionNeed {
 	@DBRef
 	public JobFunctionNeed need;
 	
-	public TaskStatus status = TaskStatus.NEW;
+	@DBRef
+	public TaskStatus status;
 
 //	public String getId() {
 //		return id;

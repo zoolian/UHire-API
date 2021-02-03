@@ -2,10 +2,11 @@ package com.uhire.rest.model;
 
 import java.math.BigDecimal;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.uhire.rest.PayType;
-import com.uhire.rest.WorkFrequency;
+import com.uhire.rest.model.lists.PayType;
+import com.uhire.rest.model.lists.WorkFrequency;
 
 @Document
 public class JobPosition {
@@ -21,9 +22,13 @@ public class JobPosition {
 	
 	private BigDecimal defaultPay;
 	
+	@DBRef
 	private PayType defaultPayType;
 	
+	@DBRef
 	private WorkFrequency defaultWorkFrequency;
+	
+	private boolean enabled = true;
 
 	public String getId() {
 		return id;
@@ -79,6 +84,14 @@ public class JobPosition {
 
 	public void setDefaultWorkFrequency(WorkFrequency defaultWorkFrequency) {
 		this.defaultWorkFrequency = defaultWorkFrequency;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 }

@@ -75,7 +75,7 @@ public class JwtAuthenticationRestController {
   @Autowired
   private InstanceInfoService instanceInfoService;
 
-@GetMapping
+  @GetMapping
   public ResponseEntity<?> healthCheck() {
 	  return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
   }

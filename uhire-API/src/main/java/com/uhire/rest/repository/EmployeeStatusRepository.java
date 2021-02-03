@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.uhire.rest.model.lists.EmployeeStatus;
 
 @Repository
-public interface EmployeeStatusRepository extends MongoRepository<EmployeeStatus, String>, QuerydslPredicateExecutor<EmployeeStatus> {
+public interface EmployeeStatusRepository extends MongoRepository<EmployeeStatus, Integer>, QuerydslPredicateExecutor<EmployeeStatus> {
 
 }

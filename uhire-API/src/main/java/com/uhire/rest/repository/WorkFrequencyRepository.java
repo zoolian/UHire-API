@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.uhire.rest.model.lists.WorkFrequency;
 
 @Repository
-public interface WorkFrequencyRepository extends MongoRepository<WorkFrequency, String>, QuerydslPredicateExecutor<WorkFrequency> {
+public interface WorkFrequencyRepository extends MongoRepository<WorkFrequency, Integer>, QuerydslPredicateExecutor<WorkFrequency> {
 
 }

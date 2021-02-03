@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.uhire.rest.model.lists.PayType;
 
 @Repository
-public interface PayTypeRepository extends MongoRepository<PayType, String>, QuerydslPredicateExecutor<PayType> {
+public interface PayTypeRepository extends MongoRepository<PayType, Integer>, QuerydslPredicateExecutor<PayType> {
 
 }

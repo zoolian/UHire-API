@@ -8,10 +8,10 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.uhire.rest.EmployeeStatus;
-import com.uhire.rest.PayType;
-import com.uhire.rest.TaskStatus;
-import com.uhire.rest.WorkFrequency;
+import com.uhire.rest.model.lists.EmployeeStatus;
+import com.uhire.rest.model.lists.PayType;
+import com.uhire.rest.model.lists.WorkFrequency;
+import com.uhire.rest.repository.TaskStatusRepository;
 
 @Document(collection = "person")
 public class Employee extends User {
@@ -19,7 +19,6 @@ public class Employee extends User {
 	public Employee(String firstName, String lastName, String email, int age, String username,
 			boolean enabled, Collection<Role> roles) {
 		super(firstName, lastName, email, age, username, enabled, roles);
-		// TODO Auto-generated constructor stub
 	}
 
 	@DBRef
@@ -27,18 +26,24 @@ public class Employee extends User {
 	
 	private BigDecimal pay;
 	
+	@DBRef
 	private PayType payType;
 	
+	@DBRef
 	private WorkFrequency workFrequency;
 	
 	private List<EmployeeJobFunctionNeed> needs;
 	
+	@DBRef
 	private EmployeeStatus status;
+	
+	private TaskStatusRepository taskStatusRepository;
 	
 	@JsonIgnore
 	public boolean isOnboardingComplete() {
+		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
 		for(EmployeeJobFunctionNeed need : this.needs) {
-			if(need.getStatus() != TaskStatus.COMPLETED) {
+			if(need.getStatus().getId() != statusCompletedId) {
 				return false;
 			}
 		}

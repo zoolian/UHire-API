@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.uhire.rest.model.lists.TaskStatus;
 
 @Repository
-public interface TaskStatusRepository extends MongoRepository<TaskStatus, String>, QuerydslPredicateExecutor<TaskStatus> {
+public interface TaskStatusRepository extends MongoRepository<TaskStatus, Integer>, QuerydslPredicateExecutor<TaskStatus> {
 
+	TaskStatus findByName(String string);
 }

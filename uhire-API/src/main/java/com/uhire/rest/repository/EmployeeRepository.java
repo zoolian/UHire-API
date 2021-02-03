@@ -12,6 +12,6 @@ import com.uhire.rest.model.Employee;
 @Repository
 public interface EmployeeRepository extends MongoRepository<Employee, String>, QuerydslPredicateExecutor<Employee> {
 
-	@Query("{'status': 1}")
+	@Query("{'status': { $exists: true } }")
 	List<Employee> findAll();
 }
