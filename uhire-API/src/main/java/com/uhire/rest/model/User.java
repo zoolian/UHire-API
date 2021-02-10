@@ -41,6 +41,10 @@ public class User extends Person {
 		this.enabled = enabled;
 	}
 
+	public User(String id, String firstName, String lastName, String email) {
+		super(id, firstName, lastName, email);
+	}
+
 	public String getUsername() {
 		return username;
 	}

@@ -70,6 +70,20 @@ public class EmployeeController {
 		return ResponseEntity.ok(emp);
 	}
 	
+	@GetMapping(path = "/name/{name}")
+	public List<Employee> getEmployeesByName(@PathVariable String name) {
+		List<Employee> employees = employeeRepository.findByFirstNameLike(name);
+		employees.addAll(employeeRepository.findByLastNameLike(name));
+		return employees;
+	}
+	
+	@GetMapping(path = "/firstName/{firstName}/lastName/{lastName}")
+	public List<Employee> getEmployeesByName(@PathVariable String firstName, @PathVariable String lastName) {
+		List<Employee> employees = employeeRepository.findByFirstNameLikeAndLastNameLike(firstName, lastName);
+		employees.addAll(employeeRepository.findByFirstNameLikeAndLastNameLike(lastName, firstName));
+		return employees;
+	}	
+	
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	@PostMapping
 	public ResponseEntity<Void> createEmployee(@Validated @RequestBody Employee emp) {

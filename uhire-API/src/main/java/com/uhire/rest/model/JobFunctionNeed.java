@@ -19,6 +19,8 @@ public class JobFunctionNeed {
 	@DBRef
 	private List<Person> noticeRecipients;
 	
+	//private List<String> customRecipients;
+	
 	private boolean enabled = true;
 
 	public String getId() {

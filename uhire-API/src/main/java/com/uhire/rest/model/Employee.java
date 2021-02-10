@@ -20,6 +20,14 @@ public class Employee extends User {
 			boolean enabled, Collection<Role> roles) {
 		super(firstName, lastName, email, age, username, enabled, roles);
 	}
+	
+	public Employee(String id, String firstName, String lastName, String email) {
+		super(id, firstName, lastName, email);
+	}
+	
+	public Employee() {
+		super();
+	}
 
 	@DBRef
 	private JobPosition position;
