@@ -14,14 +14,14 @@ public interface EmployeeRepository extends MongoRepository<Employee, String>, Q
 	@Query("{'status': { $exists: true } }")
 	List<Employee> findAll();
 
-	List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
+	List<Employee> findByFirstNameAndLastNameIgnoreCase(String firstName, String lastName);
 
 	@Query(fields="{'id' : 1, 'firstName' : 1, 'lastName' : 1, 'email' : 1 }")
-	List<Employee> findByFirstNameLikeAndLastNameLike(String firstName, String lastName);
+	List<Employee> findByFirstNameLikeAndLastNameLikeIgnoreCase(String firstName, String lastName);
 	
 	@Query(fields="{'id' : 1, 'firstName' : 1, 'lastName' : 1, 'email' : 1 }")
-	List<Employee> findByFirstNameLike(String firstName);
+	List<Employee> findByFirstNameLikeIgnoreCase(String firstName);
 	
 	@Query(fields="{'id' : 1, 'firstName' : 1, 'lastName' : 1, 'email' : 1 }")
-	List<Employee> findByLastNameLike(String lastName);
+	List<Employee> findByLastNameLikeIgnoreCase(String lastName);
 }

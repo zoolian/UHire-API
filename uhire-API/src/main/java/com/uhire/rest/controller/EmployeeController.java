@@ -38,6 +38,7 @@ import com.uhire.rest.model.Employee;
 import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.Person;
 import com.uhire.rest.repository.EmployeeRepository;
+import com.uhire.rest.repository.PersonRepository;
 import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
@@ -50,6 +51,9 @@ public class EmployeeController {
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
+
+	@Autowired
+	private PersonRepository personRepository;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -72,15 +76,15 @@ public class EmployeeController {
 	
 	@GetMapping(path = "/name/{name}")
 	public List<Employee> getEmployeesByName(@PathVariable String name) {
-		List<Employee> employees = employeeRepository.findByFirstNameLike(name);
-		employees.addAll(employeeRepository.findByLastNameLike(name));
+		List<Employee> employees = employeeRepository.findByFirstNameLikeIgnoreCase(name);
+		employees.addAll(employeeRepository.findByLastNameLikeIgnoreCase(name));
 		return employees;
 	}
 	
 	@GetMapping(path = "/firstName/{firstName}/lastName/{lastName}")
 	public List<Employee> getEmployeesByName(@PathVariable String firstName, @PathVariable String lastName) {
-		List<Employee> employees = employeeRepository.findByFirstNameLikeAndLastNameLike(firstName, lastName);
-		employees.addAll(employeeRepository.findByFirstNameLikeAndLastNameLike(lastName, firstName));
+		List<Employee> employees = employeeRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(firstName, lastName);
+		employees.addAll(employeeRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(lastName, firstName));
 		return employees;
 	}	
 	
@@ -110,7 +114,7 @@ public class EmployeeController {
 	public ResponseEntity<Employee> updateEmployee(
 			@PathVariable String id,
 			@Validated @RequestBody Employee emp) throws ResourceNotFoundException, AddressException, MessagingException {
-		employeeRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No employee found with id " + id) );
+		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
 		Employee savedEmployee = employeeRepository.save(emp);
 		
 		if(savedEmployee.isOnboardingComplete()) {
@@ -120,7 +124,7 @@ public class EmployeeController {
 					recipients += person.getEmail() + ",";
 				}
 			}
-			recipients = recipients.substring(0, recipients.length()-1);	// remove trailing comma after loop
+			recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
 			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
 		}
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);

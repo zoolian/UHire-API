@@ -49,6 +49,8 @@ public class Employee extends User {
 	
 	@JsonIgnore
 	public boolean isOnboardingComplete() {
+		if(this.needs.isEmpty()) { return false; }
+		
 		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
 		for(EmployeeJobFunctionNeed need : this.needs) {
 			if(need.getStatus().getId() != statusCompletedId) {
