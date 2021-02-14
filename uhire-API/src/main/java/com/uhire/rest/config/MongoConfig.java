@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.mongodb.ConnectionString;
@@ -33,6 +34,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 	@Value("${spring.data.mongodb.uri}")
 	protected String mongoUrl;
 	
+	private MongoClient mongoClient;
+	
 	@Override
 	public MongoClient mongoClient() {
 		final ConnectionString connectionString = new ConnectionString(mongoUrl);
@@ -42,7 +45,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 				.applyConnectionString(connectionString)
 				.credential(mongoCredential)
 				.build();
-		return MongoClients.create(mongoClientSettings);
+		this.mongoClient = MongoClients.create(mongoClientSettings);
+		return this.mongoClient;
 	}
 	
 	@Override
@@ -55,4 +59,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 		return new CascadeSaveMongoEventListener();
 	}
 	
+	@Bean
+	public MongoTemplate mongoTemplate() {
+		return new MongoTemplate(this.mongoClient, this.getDatabaseName());
+	}	
 }

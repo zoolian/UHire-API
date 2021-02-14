@@ -5,6 +5,10 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.mongodb.client.result.UpdateResult;
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Person;
 import com.uhire.rest.repository.PersonRepository;
@@ -34,6 +39,9 @@ public class PersonController {
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
+	
+	@Autowired
+	private MongoTemplate mongoTemplate;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -47,11 +55,11 @@ public class PersonController {
 	
 	@GetMapping(path = "/id/{id}")
 	public ResponseEntity<Person> getPersonById(@PathVariable String id) throws ResourceNotFoundException {
-		Person emp = personRepository.findById(id).orElseThrow(
+		Person person = personRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No Person found with id: " + id)
 		);
 		
-		return ResponseEntity.ok(emp);
+		return ResponseEntity.ok(person);
 	}
 	
 	// TODO: prevent duplicates
@@ -81,23 +89,38 @@ public class PersonController {
 	}	
 	
 	@PostMapping
-	public ResponseEntity<Void> createPerson(@Validated @RequestBody Person emp) {
-		emp.setId(null); // ensure mongo is creating id
+	public ResponseEntity<Void> createPerson(@Validated @RequestBody Person person) {
+		person.setId(null); // ensure mongo is creating id
 		
-		Person newPerson = personRepository.save(emp);
+		Person newPerson = personRepository.save(person);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 				.buildAndExpand(newPerson.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
 	
+	// *******************************************************
+	// MongoRepository.save() replaces instead of updating.
+	// The following PUT method needs to be used on all involved super classes
+	// in order to no overwrite fields that don't exist in the super class
+	// TODO: verify this PUT
+	// *******************************************************
 	@PutMapping(path = "/{id}")
-	public ResponseEntity<Person> updatePerson(
+	public ResponseEntity<UpdateResult> updatePerson(
 			@PathVariable String id,
-			@Validated @RequestBody Person emp) throws ResourceNotFoundException, AddressException, MessagingException {
+			@Validated @RequestBody Person person) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
-		Person savedPerson = personRepository.save(emp);
 		
-		return new ResponseEntity<Person>(savedPerson, HttpStatus.OK);
+		Query query = new Query().addCriteria(Criteria.where("_id").is(id));
+		
+		Update update = new Update()
+		.set("firstName", person.getFirstName())
+		.set("lastName", person.getLastName())
+		.set("email", person.getEmail())
+		.set("age", person.getAge());
+		
+		UpdateResult savedPerson = mongoTemplate.updateFirst(query, update, Person.class);
+		
+		return new ResponseEntity<UpdateResult>(savedPerson, HttpStatus.OK);
 	}
 	
 	@DeleteMapping(path = "/{id}")

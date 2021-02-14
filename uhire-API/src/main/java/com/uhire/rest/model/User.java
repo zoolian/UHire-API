@@ -2,9 +2,13 @@ package com.uhire.rest.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mongodb.DBRef;
 
 //@QueryEntity
 @Document(collection = "person")
@@ -17,7 +21,7 @@ public class User extends Person {
 	
 	// don't cascade save roles. on the front end, there's no reason to hold all the fields ...
 	// they should be changed in the role manager
-	@DBRef
+	@org.springframework.data.mongodb.core.mapping.DBRef
 	private Collection<Role> roles = new ArrayList<Role>();
 	
 	public User() {
@@ -45,6 +49,15 @@ public class User extends Person {
 		super(id, firstName, lastName, email);
 	}
 
+	@JsonIgnore
+	public Collection<DBRef> getDBRefRoles() {
+		Collection<DBRef> dbRefRoles = new ArrayList<DBRef>();
+		for(Role r : this.getRoles()) {
+			dbRefRoles.add(new DBRef("role", new ObjectId(r.getId())));
+		}
+		return dbRefRoles;
+	}
+	
 	public String getUsername() {
 		return username;
 	}

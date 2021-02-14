@@ -89,6 +89,7 @@ public class EmployeeController {
 	}	
 	
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
+	// TODO: integrity check with exception throw
 	@PostMapping
 	public ResponseEntity<Void> createEmployee(@Validated @RequestBody Employee emp) {
 		emp.setId(null); // ensure mongo is creating id
