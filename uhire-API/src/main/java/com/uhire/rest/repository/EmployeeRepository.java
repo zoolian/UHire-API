@@ -24,4 +24,6 @@ public interface EmployeeRepository extends MongoRepository<Employee, String>, Q
 	
 	@Query(fields="{'id' : 1, 'firstName' : 1, 'lastName' : 1, 'email' : 1 }")
 	List<Employee> findByLastNameLikeIgnoreCase(String lastName);
+
+	Employee getById(String id);
 }

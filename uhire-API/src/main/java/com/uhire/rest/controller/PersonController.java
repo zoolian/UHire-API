@@ -1,6 +1,7 @@
 package com.uhire.rest.controller;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -20,12 +21,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mongodb.client.result.UpdateResult;
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Person;
+import com.uhire.rest.repository.EmployeeRepository;
 import com.uhire.rest.repository.PersonRepository;
 import com.uhire.rest.service.InstanceInfoService;
 
@@ -36,6 +39,9 @@ public class PersonController {
 
 	@Autowired
 	private PersonRepository personRepository;
+	
+	@Autowired
+	private EmployeeRepository employeeRepository;
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
@@ -62,22 +68,27 @@ public class PersonController {
 		return ResponseEntity.ok(person);
 	}
 	
-	// TODO: prevent duplicates
+	// TODO: more testing on isEmployee; CHANGE TO CONDITIONS, NOT JUST BOOLEAN, AS WE MIGHT NOT CARE IF THY ARE OR AREN'T; deploy to frontend
 	@GetMapping(path = "/name/{name}")
-	public List<Person> getPersonsByName(@PathVariable String name) {
-		List<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
-		List<Person> personsByLast = personRepository.findByLastNameLikeIgnoreCase(name);
+	public List<Person> getPersonsByName(@PathVariable String name, @RequestParam(required = false) boolean isEmployee) {
+		Collection<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
+		Collection<Person> personsByLast = personRepository.findByLastNameLikeIgnoreCase(name);
 		for(Person pbl : personsByLast) {
 			if(!persons.stream().filter(p -> p.getId().equals(pbl.getId())).findFirst().isPresent()) {
 				persons.add(pbl);
 			}
 		}
-		return persons;
+		if(!isEmployee) {
+			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() != null );
+		} else {
+			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() == null );
+		}
+		return (List<Person>) persons;
 	}
 	
 	// TODO: prevent duplicates
 	@GetMapping(path = "/firstName/{firstName}/lastName/{lastName}")
-	public List<Person> getPersonsByName(@PathVariable String firstName, @PathVariable String lastName) {
+	public List<Person> getPersonsByName(@PathVariable String firstName, @PathVariable String lastName, @RequestParam(required = false) boolean isEmployee) {
 		List<Person> persons = personRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(firstName, lastName);
 		List<Person> personsByLast = personRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(lastName, firstName);
 		for(Person pbl : personsByLast) {
