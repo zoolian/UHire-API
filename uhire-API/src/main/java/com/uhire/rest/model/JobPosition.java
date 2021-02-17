@@ -1,6 +1,9 @@
 package com.uhire.rest.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,6 +30,9 @@ public class JobPosition {
 	
 	@DBRef
 	private WorkFrequency defaultWorkFrequency;
+	
+	@DBRef
+	private List<JobFunctionNeed> defaultNeeds = new ArrayList<>();
 	
 	private boolean enabled = true;
 
@@ -84,6 +90,14 @@ public class JobPosition {
 
 	public void setDefaultWorkFrequency(WorkFrequency defaultWorkFrequency) {
 		this.defaultWorkFrequency = defaultWorkFrequency;
+	}
+
+	public List<JobFunctionNeed> getDefaultNeeds() {
+		return defaultNeeds;
+	}
+
+	public void setDefaultNeeds(List<JobFunctionNeed> defaultNeeds) {
+		this.defaultNeeds = defaultNeeds;
 	}
 
 	public boolean isEnabled() {

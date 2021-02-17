@@ -1,7 +1,6 @@
 package com.uhire.rest.controller;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,8 +30,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Employee;
 import com.uhire.rest.model.EmployeeJobFunctionNeed;
@@ -91,7 +88,7 @@ public class EmployeeController {
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	// TODO: integrity check with exception throw
 	@PostMapping
-	public ResponseEntity<Void> createEmployee(@Validated @RequestBody Employee emp) {
+	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee emp) {
 		emp.setId(null); // ensure mongo is creating id
 		if(emp.getPay() == null || emp.getPay().compareTo(new BigDecimal("0")) == 0 ) {
 			emp.setPay(emp.getPosition().getDefaultPay());
@@ -106,9 +103,9 @@ public class EmployeeController {
 		}
 		
 		Employee newEmp = employeeRepository.save(emp);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
-				.buildAndExpand(newEmp.getId()).toUri();
-		return ResponseEntity.created(uri).build();
+		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
+		//		.buildAndExpand(newEmp.getId()).toUri();
+		return new ResponseEntity<String>(newEmp.getId(), HttpStatus.CREATED);
 	}
 	
 	@PutMapping(path = "/{id}")

@@ -1,5 +1,6 @@
 package com.uhire.rest.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -17,7 +18,7 @@ public class JobFunctionNeed {
 	private String description;
 	
 	@DBRef
-	private List<Person> noticeRecipients;
+	private List<Person> noticeRecipients = new ArrayList<>();
 	
 	//private List<String> customRecipients;
 	
