@@ -1,7 +1,6 @@
 package com.uhire.rest.controller;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -71,37 +70,19 @@ public class PersonController {
 	
 	@GetMapping(path = "/name/{name}")
 	public List<Person> getPersonsByName(@PathVariable String name, @RequestParam(required = false) String isEmployee) {
-		Collection<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
-		Collection<Person> personsByLast = personRepository.findByLastNameLikeIgnoreCase(name);
-		for(Person pbl : personsByLast) {
-			if(!persons.stream().filter(p -> p.getId().equals(pbl.getId())).findFirst().isPresent()) {
-				persons.add(pbl);
-			}
-		}
+		List<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
+		List<Person> personsByLast = personRepository.findByLastNameLikeIgnoreCase(name);
 		
-		switch(isEmployee) {
-		case "E":
-			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() != null );
-			break;
-		case "NE":
-			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() == null );
-			break;
-		}
-		
-		return (List<Person>) persons;
+		return combineAndFilterByIsEmployee(persons, personsByLast, isEmployee);
 	}
 	
 	// TODO: prevent duplicates
 	@GetMapping(path = "/firstName/{firstName}/lastName/{lastName}")
-	public List<Person> getPersonsByName(@PathVariable String firstName, @PathVariable String lastName, @RequestParam(required = false) boolean isEmployee) {
+	public List<Person> getPersonsByName(@PathVariable String firstName, @PathVariable String lastName, @RequestParam(required = false) String isEmployee) {
 		List<Person> persons = personRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(firstName, lastName);
 		List<Person> personsByLast = personRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(lastName, firstName);
-		for(Person pbl : personsByLast) {
-			if(!persons.stream().filter(p -> p.getId().equals(pbl.getId())).findFirst().isPresent()) {
-				persons.add(pbl);
-			}
-		}
-		return persons;
+		
+		return combineAndFilterByIsEmployee(persons, personsByLast, isEmployee);
 	}	
 	
 	@PostMapping
@@ -145,6 +126,24 @@ public class PersonController {
 		personRepository.deleteById(id);
 		
 		return new ResponseEntity<Person>(deletedPerson, HttpStatus.OK);
+	}
+	
+	private List<Person> combineAndFilterByIsEmployee(List<Person> persons1, List<Person> persons2, String isEmployee) {
+		for(Person pbl : persons2) {
+			if(!persons1.stream().filter(p -> p.getId().equals(pbl.getId())).findFirst().isPresent()) {
+				persons1.add(pbl);
+			}
+		}
+		
+		switch(isEmployee) {
+		case "E":
+			persons1.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() == null );
+			break;
+		case "NE":
+			persons1.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() != null );
+			break;
+		}
+		return persons1;
 	}
 	
 }

@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Employee;
@@ -67,11 +68,11 @@ public class EmployeeController {
 	
 	@GetMapping(path = "/id/{id}")
 	public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) throws ResourceNotFoundException {
-		Employee emp = employeeRepository.findById(id).orElseThrow(
+		Employee employee = employeeRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No Employee found with id: " + id)
 		);
 		
-		return ResponseEntity.ok(emp);
+		return ResponseEntity.ok(employee);
 	}
 	
 	@GetMapping(path = "/name/{name}")
@@ -91,28 +92,12 @@ public class EmployeeController {
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	// TODO: integrity check with exception throw
 	@PostMapping
-	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee emp) {
-		emp.setId(null); // ensure mongo is creating id
-		if(emp.getPay() == null || emp.getPay().compareTo(new BigDecimal("0")) == 0 ) {
-			emp.setPay(emp.getPosition().getDefaultPay());
-		}
+	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee) {
+		employee.setId(null); // ensure mongo is creating id
 		
-		if(emp.getPayType() == null) {
-			emp.setPayType(emp.getPosition().getDefaultPayType());
-		}
+		employee = getDefaultsFromPosition(employee);
 		
-		if(emp.getWorkFrequency() == null) {
-			emp.setWorkFrequency(emp.getPosition().getDefaultWorkFrequency());
-		}
-		
-		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
-		for(JobFunctionNeed j : emp.getPosition().getDefaultNeeds()) {
-			EmployeeJobFunctionNeed en = new EmployeeJobFunctionNeed(j, new TaskStatus(1));
-			newNeedList.add(en);
-		}
-		emp.setNeeds(newNeedList);
-		
-		Employee newEmp = employeeRepository.save(emp);
+		Employee newEmp = employeeRepository.save(employee);
 		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 		//		.buildAndExpand(newEmp.getId()).toUri();
 		return new ResponseEntity<String>(newEmp.getId(), HttpStatus.CREATED);
@@ -121,9 +106,14 @@ public class EmployeeController {
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<Employee> updateEmployee(
 			@PathVariable String id,
-			@Validated @RequestBody Employee emp) throws ResourceNotFoundException, AddressException, MessagingException {
+			@RequestParam(required = false) boolean positionChanged,
+			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
-		Employee savedEmployee = employeeRepository.save(emp);
+		Employee savedEmployee = employeeRepository.save(employee);
+		
+		if(positionChanged) {
+			employee = getDefaultsFromPosition(employee);
+		}
 		
 //		if(savedEmployee.isOnboardingComplete()) {
 //			String recipients = "";
@@ -146,7 +136,7 @@ public class EmployeeController {
 		return new ResponseEntity<Employee>(deletedEmployee, HttpStatus.OK);
 	}
 	
-	public void processNeedsCompleted(String id, String name, String recipients) throws AddressException, MessagingException {
+	private void processNeedsCompleted(String id, String name, String recipients) throws AddressException, MessagingException {
 		Properties prop = new Properties();	  
 		prop.put("mail.smtp.auth", true);
 		prop.put("mail.smtp.starttls.enable", "true");
@@ -177,6 +167,30 @@ public class EmployeeController {
 		message.setContent(multipart);
 
 		Transport.send(message);
+	}
+	
+	private Employee getDefaultsFromPosition(Employee employee) {
+		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
+			employee.setPay(employee.getPosition().getDefaultPay());
+		}
+		
+		if(employee.getPayType() == null) {
+			employee.setPayType(employee.getPosition().getDefaultPayType());
+		}
+		
+		if(employee.getWorkFrequency() == null) {
+			employee.setWorkFrequency(employee.getPosition().getDefaultWorkFrequency());
+		}
+		
+		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
+		for(JobFunctionNeed need : employee.getPosition().getDefaultNeeds()) {
+			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(need, new TaskStatus(1));
+			newNeedList.add(employeeNeed);
+			System.out.println(employeeNeed);
+		}
+		System.out.println(newNeedList);
+		employee.setNeeds(newNeedList);
+		return employee;
 	}
 	
 }
