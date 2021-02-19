@@ -1,6 +1,7 @@
 package com.uhire.rest.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -33,7 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Employee;
 import com.uhire.rest.model.EmployeeJobFunctionNeed;
+import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.Person;
+import com.uhire.rest.model.lists.TaskStatus;
 import com.uhire.rest.repository.EmployeeRepository;
 import com.uhire.rest.repository.PersonRepository;
 import com.uhire.rest.service.InstanceInfoService;
@@ -102,6 +105,13 @@ public class EmployeeController {
 			emp.setWorkFrequency(emp.getPosition().getDefaultWorkFrequency());
 		}
 		
+		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
+		for(JobFunctionNeed j : emp.getPosition().getDefaultNeeds()) {
+			EmployeeJobFunctionNeed en = new EmployeeJobFunctionNeed(j, new TaskStatus(1));
+			newNeedList.add(en);
+		}
+		emp.setNeeds(newNeedList);
+		
 		Employee newEmp = employeeRepository.save(emp);
 		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 		//		.buildAndExpand(newEmp.getId()).toUri();
@@ -115,16 +125,16 @@ public class EmployeeController {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
 		Employee savedEmployee = employeeRepository.save(emp);
 		
-		if(savedEmployee.isOnboardingComplete()) {
-			String recipients = "";
-			for(EmployeeJobFunctionNeed need : savedEmployee.getNeeds()) {
-				for(Person person : need.getNeed().getNoticeRecipients()) {
-					recipients += person.getEmail() + ",";
-				}
-			}
-			recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
-			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
-		}
+//		if(savedEmployee.isOnboardingComplete()) {
+//			String recipients = "";
+//			for(EmployeeJobFunctionNeed need : savedEmployee.getNeeds()) {
+//				for(Person person : need.getNeed().getNoticeRecipients()) {
+//					recipients += person.getEmail() + ",";
+//				}
+//			}
+//			recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
+//			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
+//		}
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
 	}
 	

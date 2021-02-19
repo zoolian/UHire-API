@@ -31,6 +31,11 @@ public class EmployeeJobFunctionNeed {
 //		this.employee = employee;
 //	}
 
+	public EmployeeJobFunctionNeed(JobFunctionNeed need, TaskStatus status) {
+		this.need = need;
+		this.status = status;
+	}
+
 	public JobFunctionNeed getNeed() {
 		return need;
 	}
@@ -45,6 +50,11 @@ public class EmployeeJobFunctionNeed {
 
 	public void setStatus(TaskStatus status) {
 		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "EmployeeJobFunctionNeed [need=" + need + ", status=" + status + "]";
 	}
 	
 }

@@ -54,6 +54,7 @@ public class PersonController {
 		return ResponseEntity.ok("{healthy: true, instanceInfo: " + instanceInfoService.retrieveInstanceInfo() + "}");
 	}
 	
+	// CONSIDER: override findAll to only return Person fields
 	@GetMapping
 	public List<Person> getPersonsAll() {
 		return personRepository.findAll();
@@ -68,9 +69,8 @@ public class PersonController {
 		return ResponseEntity.ok(person);
 	}
 	
-	// TODO: more testing on isEmployee; CHANGE TO CONDITIONS, NOT JUST BOOLEAN, AS WE MIGHT NOT CARE IF THY ARE OR AREN'T; deploy to frontend
 	@GetMapping(path = "/name/{name}")
-	public List<Person> getPersonsByName(@PathVariable String name, @RequestParam(required = false) boolean isEmployee) {
+	public List<Person> getPersonsByName(@PathVariable String name, @RequestParam(required = false) String isEmployee) {
 		Collection<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
 		Collection<Person> personsByLast = personRepository.findByLastNameLikeIgnoreCase(name);
 		for(Person pbl : personsByLast) {
@@ -78,11 +78,16 @@ public class PersonController {
 				persons.add(pbl);
 			}
 		}
-		if(!isEmployee) {
+		
+		switch(isEmployee) {
+		case "E":
 			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() != null );
-		} else {
+			break;
+		case "NE":
 			persons.removeIf(p -> employeeRepository.getById(p.getId()).getStatus() == null );
+			break;
 		}
+		
 		return (List<Person>) persons;
 	}
 	

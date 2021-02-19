@@ -8,6 +8,14 @@ public class SimpleEnumeration {
 	
 	String name;
 
+	public SimpleEnumeration() {
+		super();
+	}
+
+	public SimpleEnumeration(int id) {
+		this.id = id;
+	}
+
 	public int getId() {
 		return id;
 	}

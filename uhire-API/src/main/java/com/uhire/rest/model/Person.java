@@ -18,7 +18,7 @@ public class Person {
 	//private Address address;
 	private String email;
 	
-	private int age;	
+	private int age;
 	
 	public Person() {}
 	

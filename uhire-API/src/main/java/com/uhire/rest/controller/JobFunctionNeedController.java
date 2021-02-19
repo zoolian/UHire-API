@@ -53,6 +53,11 @@ public class JobFunctionNeedController {
 		return ResponseEntity.ok(need);
 	}
 	
+	//******************************************************
+	// POST and PUT calls both require an array list of type Person.
+	// Fields to populate: id, firstName, lastName, email.
+	// Reason: JobFunctionNeed object cannot contain a DBRef for Person list.
+	//******************************************************
 	@PostMapping
 	public ResponseEntity<Void> createJobFunctionNeed(@Validated @RequestBody JobFunctionNeed need) {
 		need.setId(null); // ensure mongo is creating id

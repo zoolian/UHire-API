@@ -107,5 +107,12 @@ public class Employee extends User {
 	public void setStatus(EmployeeStatus status) {
 		this.status = status;
 	}
+
+	@Override
+	public String toString() {
+		return "Employee [position=" + position + ", pay=" + pay + ", payType=" + payType + ", workFrequency="
+				+ workFrequency + ", needs=" + needs + ", status=" + status + ", taskStatusRepository="
+				+ taskStatusRepository + ", getNeeds()=" + getNeeds() + "]";
+	}
 	
 }
