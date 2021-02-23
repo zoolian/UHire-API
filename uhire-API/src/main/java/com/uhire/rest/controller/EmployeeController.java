@@ -36,6 +36,7 @@ import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Employee;
 import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.JobFunctionNeed;
+import com.uhire.rest.model.JobPosition;
 import com.uhire.rest.model.Person;
 import com.uhire.rest.model.lists.TaskStatus;
 import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
@@ -186,26 +187,21 @@ public class EmployeeController {
 	// as this is the only state in which the request hasn't been sent yet.
 	// ********************************************************************************
 	private Employee getDefaultsFromPosition(Employee employee) {
+		JobPosition position = jobPositionRespository.getById(employee.getPosition().getId()); // the front end only deals with the id, so grab the full object
 		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
-			employee.setPay(employee.getPosition().getDefaultPay());
+			employee.setPay(position.getDefaultPay()) ;
 		}
 		
 		if(employee.getPayType() == null) {
-			employee.setPayType(employee.getPosition().getDefaultPayType());
+			employee.setPayType(position.getDefaultPayType());
 		}
 		
 		if(employee.getWorkFrequency() == null) {
-			employee.setWorkFrequency(employee.getPosition().getDefaultWorkFrequency());
+			employee.setWorkFrequency(position.getDefaultWorkFrequency());
 		}
 		
-		List<JobFunctionNeed> defaultNeeds = jobPositionRespository.getById(employee.getPosition().getId()).getDefaultNeeds();	// the front end only deals with the id, so grab needs
-		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
-		for(JobFunctionNeed need : defaultNeeds) {
-			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1));	// hardcoded ID 1
-			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
-				newNeedList.add(employeeNeed);
-			}
-		}
+		List<JobFunctionNeed> defaultNeeds = position.getDefaultNeeds();
+		List<EmployeeJobFunctionNeed> newNeedList = EmployeeJobFunctionNeed.populateEmployeeNeedsFromJobDefaults(employee, defaultNeeds);
 		employeeJobFunctionNeedRepository.saveAll(newNeedList);
 		return employee;
 	}

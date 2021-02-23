@@ -131,9 +131,15 @@ public class JobFunctionNeedController {
 		for(EmployeeJobFunctionNeed n : needs) {
 			n.setId(null);
 			n.setStatus(new TaskStatus(1));
+			// prevent duplicates
+			if(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(n.getNeed().getId(), n.getEmployee().getId()).isPresent()) {
+				needs.remove(n);
+			}
 		}
 		
-		employeeJobFunctionNeedRepository.saveAll(needs);
+		if(!needs.isEmpty()) {
+			employeeJobFunctionNeedRepository.saveAll(needs);
+		}
 		return ResponseEntity.ok().build();
 	}
 	

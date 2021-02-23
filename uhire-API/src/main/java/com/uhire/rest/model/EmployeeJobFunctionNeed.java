@@ -1,10 +1,15 @@
 package com.uhire.rest.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.uhire.rest.model.lists.TaskStatus;
+import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 
 @Document(collection = "task")
 public class EmployeeJobFunctionNeed {
@@ -20,11 +25,27 @@ public class EmployeeJobFunctionNeed {
 	
 	@DBRef
 	public TaskStatus status;
+	
+	@Autowired
+	private static EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
 
 	public EmployeeJobFunctionNeed(Employee employee, JobFunctionNeed need, TaskStatus status) {
 		this.employee = employee;
 		this.need = need;
 		this.status = status;
+	}
+	
+	public static List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs) {		
+		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
+		for(JobFunctionNeed need : needs) {
+			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1));	// hardcoded ID 1
+			System.out.println(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()));
+			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
+				System.out.println(employeeNeed);
+				newNeedList.add(employeeNeed);
+			}
+		}
+		return newNeedList;
 	}
 	
 	public String getId() {
@@ -61,7 +82,7 @@ public class EmployeeJobFunctionNeed {
 
 	@Override
 	public String toString() {
-		return "EmployeeJobFunctionNeed [need=" + need.toString() + ", status=" + status.toString() + "]";
+		return "EmployeeJobFunctionNeed [id=" + id + ", getEmployee()=" + getEmployee().getId() + ", getNeed()=" + getNeed().getId()
+				+ ", getStatus()=" + getStatus().getId() + "]";
 	}
-	
 }
