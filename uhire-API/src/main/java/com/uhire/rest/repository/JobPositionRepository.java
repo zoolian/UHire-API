@@ -9,4 +9,6 @@ import com.uhire.rest.model.JobPosition;
 @Repository
 public interface JobPositionRepository extends MongoRepository<JobPosition, String>, QuerydslPredicateExecutor<JobPosition> {
 
+	JobPosition getById(String id);
+
 }

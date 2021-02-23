@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uhire.rest.model.lists.EmployeeStatus;
 import com.uhire.rest.model.lists.PayType;
 import com.uhire.rest.model.lists.WorkFrequency;
+import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.TaskStatusRepository;
 
 @Document(collection = "person")
@@ -40,19 +42,24 @@ public class Employee extends User {
 	@DBRef
 	private WorkFrequency workFrequency;
 	
-	private List<EmployeeJobFunctionNeed> needs;
-	
 	@DBRef
 	private EmployeeStatus status;
 	
+	@Autowired
 	private TaskStatusRepository taskStatusRepository;
+	
+	@Autowired
+	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
 	
 	@JsonIgnore
 	public boolean isOnboardingComplete() {
-		if(this.needs.isEmpty()) { return false; }
-		
+		List<EmployeeJobFunctionNeed> needs = employeeJobFunctionNeedRepository.findByEmployeeId(this.getId());
+		if(needs.isEmpty()) { return false; }
+		System.out.println(needs.get(1));
 		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
-		for(EmployeeJobFunctionNeed need : this.needs) {
+		System.out.println(statusCompletedId);
+		for(EmployeeJobFunctionNeed need : needs) {
+			System.out.println(need.toString());
 			if(need.getStatus().getId() != statusCompletedId) {
 				return false;
 			}
@@ -92,14 +99,6 @@ public class Employee extends User {
 		this.workFrequency = workFrequency;
 	}
 
-	public List<EmployeeJobFunctionNeed> getNeeds() {
-		return needs;
-	}
-
-	public void setNeeds(List<EmployeeJobFunctionNeed> needs) {
-		this.needs = needs;
-	}
-
 	public EmployeeStatus getStatus() {
 		return status;
 	}
@@ -110,9 +109,7 @@ public class Employee extends User {
 
 	@Override
 	public String toString() {
-		return "Employee [position=" + position + ", pay=" + pay + ", payType=" + payType + ", workFrequency="
-				+ workFrequency + ", needs=" + needs + ", status=" + status + ", taskStatusRepository="
-				+ taskStatusRepository + ", getNeeds()=" + getNeeds() + "]";
+		return "Employee [pay=" + pay + ", getPosition()=" + getPosition().getTitle() + ", getPayType()=" + getPayType().getName()
+				+ ", getWorkFrequency()=" + getWorkFrequency().getName() + ", getStatus()=" + getStatus().getName() + "]";
 	}
-	
 }

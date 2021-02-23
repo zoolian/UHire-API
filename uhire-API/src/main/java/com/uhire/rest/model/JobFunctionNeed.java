@@ -59,5 +59,11 @@ public class JobFunctionNeed {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+
+	@Override
+	public String toString() {
+		return "JobFunctionNeed [id=" + id + ", name=" + name + ", description=" + description + ", noticeRecipients="
+				+ noticeRecipients + ", enabled=" + enabled + "]";
+	}
 	
 }

@@ -38,7 +38,9 @@ import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.Person;
 import com.uhire.rest.model.lists.TaskStatus;
+import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.EmployeeRepository;
+import com.uhire.rest.repository.JobPositionRepository;
 import com.uhire.rest.repository.PersonRepository;
 import com.uhire.rest.service.InstanceInfoService;
 
@@ -55,6 +57,12 @@ public class EmployeeController {
 
 	@Autowired
 	private PersonRepository personRepository;
+
+	@Autowired
+	private JobPositionRepository jobPositionRespository;
+	
+	@Autowired
+	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -109,8 +117,7 @@ public class EmployeeController {
 			@RequestParam(required = false) boolean positionChanged,
 			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
-		Employee savedEmployee = employeeRepository.save(employee);
-		
+				
 		if(positionChanged) {
 			employee = getDefaultsFromPosition(employee);
 		}
@@ -118,13 +125,18 @@ public class EmployeeController {
 //		if(savedEmployee.isOnboardingComplete()) {
 //			String recipients = "";
 //			for(EmployeeJobFunctionNeed need : savedEmployee.getNeeds()) {
-//				for(Person person : need.getNeed().getNoticeRecipients()) {
-//					recipients += person.getEmail() + ",";
+//				if(!need.getNeed().getNoticeRecipients().isEmpty()) {
+//					for(Person person : need.getNeed().getNoticeRecipients()) {
+//						recipients += person.getEmail() + ",";
+//					}
 //				}
 //			}
-//			recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
-//			processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
+//			if(recipients.length() > 0) {
+//				recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
+//				processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
+//			}
 //		}
+		Employee savedEmployee = employeeRepository.save(employee);
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
 	}
 	
@@ -169,6 +181,10 @@ public class EmployeeController {
 		Transport.send(message);
 	}
 	
+	//*********************************************************************************
+	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
+	// as this is the only state in which the request hasn't been sent yet.
+	// ********************************************************************************
 	private Employee getDefaultsFromPosition(Employee employee) {
 		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
 			employee.setPay(employee.getPosition().getDefaultPay());
@@ -182,14 +198,15 @@ public class EmployeeController {
 			employee.setWorkFrequency(employee.getPosition().getDefaultWorkFrequency());
 		}
 		
+		List<JobFunctionNeed> defaultNeeds = jobPositionRespository.getById(employee.getPosition().getId()).getDefaultNeeds();	// the front end only deals with the id, so grab needs
 		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
-		for(JobFunctionNeed need : employee.getPosition().getDefaultNeeds()) {
-			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(need, new TaskStatus(1));
-			newNeedList.add(employeeNeed);
-			System.out.println(employeeNeed);
+		for(JobFunctionNeed need : defaultNeeds) {
+			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1));	// hardcoded ID 1
+			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
+				newNeedList.add(employeeNeed);
+			}
 		}
-		System.out.println(newNeedList);
-		employee.setNeeds(newNeedList);
+		employeeJobFunctionNeedRepository.saveAll(newNeedList);
 		return employee;
 	}
 	

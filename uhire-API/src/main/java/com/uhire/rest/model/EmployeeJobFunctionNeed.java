@@ -1,13 +1,19 @@
 package com.uhire.rest.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.uhire.rest.model.lists.TaskStatus;
 
+@Document(collection = "task")
 public class EmployeeJobFunctionNeed {
 	
-//	@DBRef
-//	public Employee employee;
+	@Id
+	public String id;
+	
+	@DBRef
+	public Employee employee;
 	
 	@DBRef
 	public JobFunctionNeed need;
@@ -15,25 +21,26 @@ public class EmployeeJobFunctionNeed {
 	@DBRef
 	public TaskStatus status;
 
-//	public String getId() {
-//		return id;
-//	}
-//
-//	public void setId(String id) {
-//		this.id = id;
-//	}
-//
-//	public Employee getEmployee() {
-//		return employee;
-//	}
-//
-//	public void setEmployee(Employee employee) {
-//		this.employee = employee;
-//	}
-
-	public EmployeeJobFunctionNeed(JobFunctionNeed need, TaskStatus status) {
+	public EmployeeJobFunctionNeed(Employee employee, JobFunctionNeed need, TaskStatus status) {
+		this.employee = employee;
 		this.need = need;
 		this.status = status;
+	}
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Employee getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
 	}
 
 	public JobFunctionNeed getNeed() {
@@ -54,7 +61,7 @@ public class EmployeeJobFunctionNeed {
 
 	@Override
 	public String toString() {
-		return "EmployeeJobFunctionNeed [need=" + need + ", status=" + status + "]";
+		return "EmployeeJobFunctionNeed [need=" + need.toString() + ", status=" + status.toString() + "]";
 	}
 	
 }

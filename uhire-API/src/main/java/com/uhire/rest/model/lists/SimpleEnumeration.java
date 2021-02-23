@@ -31,4 +31,10 @@ public class SimpleEnumeration {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		return "SimpleEnumeration [id=" + id + ", name=" + name + "]";
+	}
+	
 }

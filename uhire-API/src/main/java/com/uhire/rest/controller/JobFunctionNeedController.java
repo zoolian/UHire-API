@@ -18,8 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.uhire.rest.exception.ForbiddenException;
 import com.uhire.rest.exception.ResourceNotFoundException;
+import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.JobFunctionNeed;
+import com.uhire.rest.model.lists.TaskStatus;
+import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.JobFunctionNeedRepository;
 import com.uhire.rest.service.InstanceInfoService;
 
@@ -33,6 +37,9 @@ public class JobFunctionNeedController {
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
+
+	@Autowired
+	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -53,11 +60,11 @@ public class JobFunctionNeedController {
 		return ResponseEntity.ok(need);
 	}
 	
-	//******************************************************
+	//****************************************************************************
 	// POST and PUT calls both require an array list of type Person.
 	// Fields to populate: id, firstName, lastName, email.
 	// Reason: JobFunctionNeed object cannot contain a DBRef for Person list.
-	//******************************************************
+	//****************************************************************************
 	@PostMapping
 	public ResponseEntity<Void> createJobFunctionNeed(@Validated @RequestBody JobFunctionNeed need) {
 		need.setId(null); // ensure mongo is creating id
@@ -85,6 +92,74 @@ public class JobFunctionNeedController {
 		jobFunctionNeedRepository.deleteById(id);
 		
 		return new ResponseEntity<JobFunctionNeed>(deletedNeed, HttpStatus.OK);
+	}
+	
+	// **	This section is for employee need tasks	**
+	
+	@GetMapping(path = "/employee")
+	public List<EmployeeJobFunctionNeed> getEmployeeNeedsAll() {
+		return employeeJobFunctionNeedRepository.findAll();
+	}
+	
+	@GetMapping(path = "/employee/id/{id}")
+	public ResponseEntity<EmployeeJobFunctionNeed> getEmployeeNeedById(@PathVariable String id) throws ResourceNotFoundException {
+		EmployeeJobFunctionNeed need = employeeJobFunctionNeedRepository.findById(id).orElseThrow(
+			() -> new ResourceNotFoundException("No job need found with id: " + id)
+		);
+		
+		return ResponseEntity.ok(need);
+	}
+	
+	@GetMapping(path = "/employee/employee/{id}")
+	public List<EmployeeJobFunctionNeed> getEmployeeNeedsByEmployeeId(@PathVariable String id) {
+		return employeeJobFunctionNeedRepository.findByEmployeeId(id);
+	}
+	
+	@PostMapping(path = "/employee")
+	public ResponseEntity<Void> createEmployeeNeed(@Validated @RequestBody EmployeeJobFunctionNeed need) {
+		need.setId(null); // ensure mongo is creating id
+		need.setStatus(new TaskStatus(1));
+		
+		EmployeeJobFunctionNeed newNeed = employeeJobFunctionNeedRepository.save(need);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/employee/id/{id}")
+				.buildAndExpand(newNeed.getId()).toUri();
+		return ResponseEntity.created(uri).build();
+	}
+	
+	@PostMapping(path = "/employee/list")
+	public ResponseEntity<Void> createEmployeeNeeds(@Validated @RequestBody List<EmployeeJobFunctionNeed> needs) {
+		for(EmployeeJobFunctionNeed n : needs) {
+			n.setId(null);
+			n.setStatus(new TaskStatus(1));
+		}
+		
+		employeeJobFunctionNeedRepository.saveAll(needs);
+		return ResponseEntity.ok().build();
+	}
+	
+	@PutMapping(path = "/employee/{id}")
+	public ResponseEntity<EmployeeJobFunctionNeed> updateEmployeeNeed(
+			@PathVariable String id,
+			@Validated @RequestBody EmployeeJobFunctionNeed need) throws ResourceNotFoundException {
+		employeeJobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
+		EmployeeJobFunctionNeed savedNeed = employeeJobFunctionNeedRepository.save(need);
+		
+		return new ResponseEntity<EmployeeJobFunctionNeed>(savedNeed, HttpStatus.OK);
+	}
+	
+	//*********************************************************************************
+	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
+	// as this is the only state in which the request hasn't been sent yet.
+	// ********************************************************************************
+	@DeleteMapping(path = "/employee/{id}")
+	public ResponseEntity<EmployeeJobFunctionNeed> deleteEmployeeNeed(@PathVariable String id) throws ResourceNotFoundException, ForbiddenException {
+		EmployeeJobFunctionNeed deletedNeed = employeeJobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
+		if(deletedNeed.getStatus().getId() != 1) {
+			throw new ForbiddenException("Task already being processed");
+		}
+		employeeJobFunctionNeedRepository.deleteById(id);
+		
+		return new ResponseEntity<EmployeeJobFunctionNeed>(deletedNeed, HttpStatus.OK);
 	}
 	
 }
