@@ -1,6 +1,7 @@
 package com.uhire.rest.controller;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,6 +149,7 @@ public class JobFunctionNeedController {
 			@PathVariable String id,
 			@Validated @RequestBody EmployeeJobFunctionNeed need) throws ResourceNotFoundException {
 		employeeJobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
+		need.setModifyDate(new Date());	// back end setter to guarantee precision
 		EmployeeJobFunctionNeed savedNeed = employeeJobFunctionNeedRepository.save(need);
 		
 		return new ResponseEntity<EmployeeJobFunctionNeed>(savedNeed, HttpStatus.OK);

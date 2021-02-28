@@ -38,6 +38,7 @@ import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.JobPosition;
 import com.uhire.rest.model.Person;
+import com.uhire.rest.model.User;
 import com.uhire.rest.model.lists.TaskStatus;
 import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.EmployeeRepository;
@@ -101,10 +102,10 @@ public class EmployeeController {
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	// TODO: integrity check with exception throw
 	@PostMapping
-	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee) {
+	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee, @RequestParam String user) {
 		employee.setId(null); // ensure mongo is creating id
 		
-		employee = getDefaultsFromPosition(employee);
+		employee = getDefaultsFromPosition(employee, user);
 		
 		Employee newEmp = employeeRepository.save(employee);
 		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
@@ -116,11 +117,12 @@ public class EmployeeController {
 	public ResponseEntity<Employee> updateEmployee(
 			@PathVariable String id,
 			@RequestParam(required = false) boolean positionChanged,
+			@RequestParam String user,
 			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
 				
 		if(positionChanged) {
-			employee = getDefaultsFromPosition(employee);
+			employee = getDefaultsFromPosition(employee, user);
 		}
 		
 //		if(savedEmployee.isOnboardingComplete()) {
@@ -186,7 +188,7 @@ public class EmployeeController {
 	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
 	// as this is the only state in which the request hasn't been sent yet.
 	// ********************************************************************************
-	private Employee getDefaultsFromPosition(Employee employee) {
+	private Employee getDefaultsFromPosition(Employee employee, String user) {
 		JobPosition position = jobPositionRespository.getById(employee.getPosition().getId()); // the front end only deals with the id, so grab the full object
 		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
 			employee.setPay(position.getDefaultPay()) ;
@@ -201,7 +203,7 @@ public class EmployeeController {
 		}
 		
 		List<JobFunctionNeed> defaultNeeds = position.getDefaultNeeds();
-		List<EmployeeJobFunctionNeed> newNeedList = EmployeeJobFunctionNeed.populateEmployeeNeedsFromJobDefaults(employee, defaultNeeds);
+		List<EmployeeJobFunctionNeed> newNeedList = EmployeeJobFunctionNeed.populateEmployeeNeedsFromJobDefaults(employee, defaultNeeds, user);
 		employeeJobFunctionNeedRepository.saveAll(newNeedList);
 		return employee;
 	}

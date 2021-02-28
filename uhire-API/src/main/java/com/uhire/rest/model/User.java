@@ -49,6 +49,10 @@ public class User extends Person {
 		super(id, firstName, lastName, email);
 	}
 
+	public User(String userId) {
+		super(userId);
+	}
+
 	@JsonIgnore
 	public Collection<DBRef> getDBRefRoles() {
 		Collection<DBRef> dbRefRoles = new ArrayList<DBRef>();

@@ -1,6 +1,7 @@
 package com.uhire.rest.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +16,25 @@ import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 public class EmployeeJobFunctionNeed {
 	
 	@Id
-	public String id;
+	private String id;
 	
 	@DBRef
-	public Employee employee;
+	private Employee employee;
 	
 	@DBRef
-	public JobFunctionNeed need;
+	private JobFunctionNeed need;
 	
 	@DBRef
-	public TaskStatus status;
+	private TaskStatus status;
+	
+	@DBRef
+	private User createUser;
+	
+	@DBRef
+	private User modifyUser;
+	
+	private Date createDate = new Date();
+	private Date modifyDate = new Date();
 	
 	@Autowired
 	private static EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
@@ -35,13 +45,25 @@ public class EmployeeJobFunctionNeed {
 		this.status = status;
 	}
 	
-	public static List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs) {		
+	public EmployeeJobFunctionNeed(Employee employee, JobFunctionNeed need, TaskStatus status,
+			User createUser, User modifyUser, Date createDate, Date modifyDate) {
+		super();
+		this.employee = employee;
+		this.need = need;
+		this.status = status;
+		this.createUser = createUser;
+		this.modifyUser = modifyUser;
+		this.createDate = createDate;
+		this.modifyDate = modifyDate;
+	}
+
+	public static List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs, String userId) {
+		User user = new User(userId);
+		Date date = new Date();
 		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
 		for(JobFunctionNeed need : needs) {
-			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1));	// hardcoded ID 1
-			System.out.println(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()));
+			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1), user, user, date, date);	// hardcoded ID 1
 			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
-				System.out.println(employeeNeed);
 				newNeedList.add(employeeNeed);
 			}
 		}
@@ -78,6 +100,38 @@ public class EmployeeJobFunctionNeed {
 
 	public void setStatus(TaskStatus status) {
 		this.status = status;
+	}
+
+	public User getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(User createUser) {
+		this.createUser = createUser;
+	}
+
+	public User getModifyUser() {
+		return modifyUser;
+	}
+
+	public void setModifyUser(User modifyUser) {
+		this.modifyUser = modifyUser;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
 	}
 
 	@Override

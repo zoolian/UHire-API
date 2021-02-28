@@ -34,6 +34,11 @@ public class Employee extends User {
 	@DBRef
 	private JobPosition position;
 	
+//	@DBRef
+//	private Department department;
+	
+//	private Date joinDate;
+	
 	private BigDecimal pay;
 	
 	@DBRef
