@@ -2,11 +2,12 @@ package com.uhire.rest.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 public class UserWithPassword extends Person {
 	
-	public UserWithPassword(String firstName, String lastName, String email, int age) {
-		super(firstName, lastName, email, age);
+	public UserWithPassword(String firstName, String lastName, String email, Date dob) {
+		super(firstName, lastName, email, dob);
 	}
 
 	private String username;
@@ -53,7 +54,7 @@ public class UserWithPassword extends Person {
 	public String toString() {
 		return "UserWithPassword [username=" + username + ", password=" + password + ", enabled=" + enabled + ", roles="
 				+ roles + ", getId()=" + getId() + ", getFirstName()=" + getFirstName() + ", getLastName()="
-				+ getLastName() + ", getEmail()=" + getEmail() + ", getAge()=" + getAge() + ", toString()="
+				+ getLastName() + ", getEmail()=" + getEmail() + ", getDob()=" + getDob() + ", toString()="
 				+ super.toString() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode() + "]";
 	}	
 	

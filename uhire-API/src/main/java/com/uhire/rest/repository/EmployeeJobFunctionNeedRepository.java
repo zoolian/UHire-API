@@ -16,4 +16,6 @@ public interface EmployeeJobFunctionNeedRepository extends MongoRepository<Emplo
 
 	Optional<EmployeeJobFunctionNeed> findByNeedIdAndEmployeeId(String needId, String employeeId);
 
+	List<EmployeeJobFunctionNeed> findByNeedId(String id);
+
 }

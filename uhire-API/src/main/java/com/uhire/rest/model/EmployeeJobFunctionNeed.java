@@ -1,16 +1,11 @@
 package com.uhire.rest.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.uhire.rest.model.lists.TaskStatus;
-import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 
 @Document(collection = "task")
 public class EmployeeJobFunctionNeed {
@@ -33,11 +28,12 @@ public class EmployeeJobFunctionNeed {
 	@DBRef
 	private User modifyUser;
 	
-	private Date createDate = new Date();
-	private Date modifyDate = new Date();
-	
-	@Autowired
-	private static EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
+	private Date createDate; // This one needs to be set on the front end, otherwise it will get set to "now" every time.
+	private Date modifyDate = new Date();	// This one is set to "now" every time.
+
+	public EmployeeJobFunctionNeed() {
+		super();
+	}
 
 	public EmployeeJobFunctionNeed(Employee employee, JobFunctionNeed need, TaskStatus status) {
 		this.employee = employee;
@@ -55,19 +51,6 @@ public class EmployeeJobFunctionNeed {
 		this.modifyUser = modifyUser;
 		this.createDate = createDate;
 		this.modifyDate = modifyDate;
-	}
-
-	public static List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs, String userId) {
-		User user = new User(userId);
-		Date date = new Date();
-		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
-		for(JobFunctionNeed need : needs) {
-			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1), user, user, date, date);	// hardcoded ID 1
-			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
-				newNeedList.add(employeeNeed);
-			}
-		}
-		return newNeedList;
 	}
 	
 	public String getId() {
@@ -136,7 +119,8 @@ public class EmployeeJobFunctionNeed {
 
 	@Override
 	public String toString() {
-		return "EmployeeJobFunctionNeed [id=" + id + ", getEmployee()=" + getEmployee().getId() + ", getNeed()=" + getNeed().getId()
-				+ ", getStatus()=" + getStatus().getId() + "]";
+		return "EmployeeJobFunctionNeed [id=" + id + ", createDate=" + createDate + ", modifyDate=" + modifyDate
+				+ ", getEmployee()=" + getEmployee().getId() + ", getNeed()=" + getNeed().getId() + ", getStatus()=" + getStatus().getId()
+				+ ", getCreateUser()=" + getCreateUser().getId() + ", getModifyUser()=" + getModifyUser().getId() + "]";
 	}
 }

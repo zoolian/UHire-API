@@ -2,6 +2,7 @@ package com.uhire.rest.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -28,19 +29,19 @@ public class User extends Person {
 		super();
 	}
 
-	public User(String firstName, String lastName, String email, int age) {
-		super(firstName, lastName, email, age);
+	public User(String firstName, String lastName, String email, Date dob) {
+		super(firstName, lastName, email, dob);
 	}
 
-	public User(String firstName, String lastName, String email, int age, String username, boolean enabled, Collection<Role> roles) {
-		super(firstName, lastName, email, age);
+	public User(String firstName, String lastName, String email, Date dob, String username, boolean enabled, Collection<Role> roles) {
+		super(firstName, lastName, email, dob);
 		this.username = username;
 		this.enabled = enabled;
 		this.roles = roles;
 	}
 
-	public User(String firstName, String lastName, String email, int age, String username, boolean enabled) {
-		super(firstName, lastName, email, age);
+	public User(String firstName, String lastName, String email, Date dob, String username, boolean enabled) {
+		super(firstName, lastName, email, dob);
 		this.username = username;
 		this.enabled = enabled;
 	}
@@ -90,7 +91,7 @@ public class User extends Person {
 	public String toString() {
 		return "User2 [username=" + username + ", enabled=" + enabled + ", roles=" + roles + ", getId()=" + getId()
 				+ ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getEmail()="
-				+ getEmail() + ", getAge()=" + getAge() + ", toString()=" + super.toString() + ", getClass()="
+				+ getEmail() + ", getDob()=" + getDob() + ", toString()=" + super.toString() + ", getClass()="
 				+ getClass() + ", hashCode()=" + hashCode() + "]";
 	}	
 	

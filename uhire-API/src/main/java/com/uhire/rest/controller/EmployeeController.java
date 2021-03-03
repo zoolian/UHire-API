@@ -2,22 +2,10 @@ package com.uhire.rest.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +25,14 @@ import com.uhire.rest.model.Employee;
 import com.uhire.rest.model.EmployeeJobFunctionNeed;
 import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.JobPosition;
-import com.uhire.rest.model.Person;
 import com.uhire.rest.model.User;
 import com.uhire.rest.model.lists.TaskStatus;
 import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.EmployeeRepository;
 import com.uhire.rest.repository.JobPositionRepository;
 import com.uhire.rest.repository.PersonRepository;
+import com.uhire.rest.repository.TaskStatusRepository;
+import com.uhire.rest.service.Email;
 import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
@@ -65,6 +54,9 @@ public class EmployeeController {
 	
 	@Autowired
 	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
+	
+	@Autowired
+	private TaskStatusRepository taskStatusRepository;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -102,10 +94,11 @@ public class EmployeeController {
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	// TODO: integrity check with exception throw
 	@PostMapping
-	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee, @RequestParam String user) {
+	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee, @RequestParam String userId) throws ResourceNotFoundException {
+		personRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + userId) );
 		employee.setId(null); // ensure mongo is creating id
 		
-		employee = getDefaultsFromPosition(employee, user);
+		employee = getDefaultsFromPosition(employee, userId);
 		
 		Employee newEmp = employeeRepository.save(employee);
 		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
@@ -117,29 +110,23 @@ public class EmployeeController {
 	public ResponseEntity<Employee> updateEmployee(
 			@PathVariable String id,
 			@RequestParam(required = false) boolean positionChanged,
-			@RequestParam String user,
+			@RequestParam String userId,
 			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
-				
+		personRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + userId) );
+		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
+		
 		if(positionChanged) {
-			employee = getDefaultsFromPosition(employee, user);
+			employee = getDefaultsFromPosition(employee, userId);
 		}
 		
-//		if(savedEmployee.isOnboardingComplete()) {
-//			String recipients = "";
-//			for(EmployeeJobFunctionNeed need : savedEmployee.getNeeds()) {
-//				if(!need.getNeed().getNoticeRecipients().isEmpty()) {
-//					for(Person person : need.getNeed().getNoticeRecipients()) {
-//						recipients += person.getEmail() + ",";
-//					}
-//				}
-//			}
-//			if(recipients.length() > 0) {
-//				recipients = recipients.substring(0, recipients.length() - 1);	// remove trailing comma after loop
-//				processNeedsCompleted(savedEmployee.getId(), savedEmployee.getFirstName() + " " + savedEmployee.getLastName(), recipients);
-//			}
-//		}
+		List<EmployeeJobFunctionNeed> needs = employeeJobFunctionNeedRepository.findByEmployeeId(employee.getId());
 		Employee savedEmployee = employeeRepository.save(employee);
+		
+		if(!needs.isEmpty() && savedEmployee.isOnboardingComplete(needs, statusCompletedId)) {
+			Email.processNeedsCompleted(needs, savedEmployee);
+		}
+		
 		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
 	}
 	
@@ -151,44 +138,11 @@ public class EmployeeController {
 		return new ResponseEntity<Employee>(deletedEmployee, HttpStatus.OK);
 	}
 	
-	private void processNeedsCompleted(String id, String name, String recipients) throws AddressException, MessagingException {
-		Properties prop = new Properties();	  
-		prop.put("mail.smtp.auth", true);
-		prop.put("mail.smtp.starttls.enable", "true");
-		prop.put("mail.smtp.host", "smtp.mailtrap.io");
-		prop.put("mail.smtp.port", "25");
-		prop.put("mail.smtp.ssl.trust", "smtp.mailtrap.io");
-		  
-		Session session = Session.getInstance(prop, new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("userName", "password");
-			}
-		});
-		
-		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress("noreply@jmscottnovels.com"));
-		message.setRecipients(
-			Message.RecipientType.TO, InternetAddress.parse(recipients));
-		message.setSubject("A new employee, " + name + ", has onboarding needs");
-
-		String msg = "Click <a href=\"https://uhire.jmscottnovels.com/" + id + "\">here</a> to assist " + name + " with their job function needs.";
-
-		MimeBodyPart mimeBodyPart = new MimeBodyPart();
-		mimeBodyPart.setContent(msg, "text/html");
-
-		Multipart multipart = new MimeMultipart();
-		multipart.addBodyPart(mimeBodyPart);
-
-		message.setContent(multipart);
-
-		Transport.send(message);
-	}
-	
 	//*********************************************************************************
 	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
 	// as this is the only state in which the request hasn't been sent yet.
 	// ********************************************************************************
-	private Employee getDefaultsFromPosition(Employee employee, String user) {
+	private Employee getDefaultsFromPosition(Employee employee, String userId) {
 		JobPosition position = jobPositionRespository.getById(employee.getPosition().getId()); // the front end only deals with the id, so grab the full object
 		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
 			employee.setPay(position.getDefaultPay()) ;
@@ -203,9 +157,25 @@ public class EmployeeController {
 		}
 		
 		List<JobFunctionNeed> defaultNeeds = position.getDefaultNeeds();
-		List<EmployeeJobFunctionNeed> newNeedList = EmployeeJobFunctionNeed.populateEmployeeNeedsFromJobDefaults(employee, defaultNeeds, user);
+		List<EmployeeJobFunctionNeed> newNeedList = populateEmployeeNeedsFromJobDefaults(employee, defaultNeeds, userId);
+		
 		employeeJobFunctionNeedRepository.saveAll(newNeedList);
 		return employee;
+	}
+	
+	// hard coded ID 1
+	// this will only ever be called for new entries, so createUser and modifyUser will be the same person
+	private List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs, String userId) {
+		User user = new User(userId);
+		Date date = new Date();
+		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();
+		for(JobFunctionNeed need : needs) {
+			EmployeeJobFunctionNeed employeeNeed = new EmployeeJobFunctionNeed(employee, need, new TaskStatus(1), user, user, date, date);
+			if(!employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(need.getId(), employee.getId()).isPresent()) {
+				newNeedList.add(employeeNeed);
+			}
+		}
+		return newNeedList;
 	}
 	
 }

@@ -102,7 +102,7 @@ public class JwtAuthenticationRestController {
   
   @PostMapping(value = "/signup")
   public ResponseEntity<?> createUser(@RequestBody UserWithPassword user) throws IOException {
-	  User newUser = new User(user.getFirstName(), user.getLastName(), user.getEmail(), user.getAge(), user.getUsername(), true);
+	  User newUser = new User(user.getFirstName(), user.getLastName(), user.getEmail(), user.getDob(), user.getUsername(), true);
 	  User savedUser = userRepository.save(newUser);
 	  Password password = new Password(savedUser.getId(), user.getPassword());
 	  customUserService.saveUser(savedUser, password);

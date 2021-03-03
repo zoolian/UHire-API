@@ -2,9 +2,9 @@ package com.uhire.rest.model;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,15 +12,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uhire.rest.model.lists.EmployeeStatus;
 import com.uhire.rest.model.lists.PayType;
 import com.uhire.rest.model.lists.WorkFrequency;
-import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
-import com.uhire.rest.repository.TaskStatusRepository;
 
 @Document(collection = "person")
 public class Employee extends User {
 	
-	public Employee(String firstName, String lastName, String email, int age, String username,
+	public Employee(String firstName, String lastName, String email, Date dob, String username,
 			boolean enabled, Collection<Role> roles) {
-		super(firstName, lastName, email, age, username, enabled, roles);
+		super(firstName, lastName, email, dob, username, enabled, roles);
 	}
 	
 	public Employee(String id, String firstName, String lastName, String email) {
@@ -37,7 +35,12 @@ public class Employee extends User {
 //	@DBRef
 //	private Department department;
 	
+	@DBRef
+	private Employee manager;
+	
 //	private Date joinDate;
+	
+//	private Date terminationDate;
 	
 	private BigDecimal pay;
 	
@@ -50,21 +53,9 @@ public class Employee extends User {
 	@DBRef
 	private EmployeeStatus status;
 	
-	@Autowired
-	private TaskStatusRepository taskStatusRepository;
-	
-	@Autowired
-	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
-	
 	@JsonIgnore
-	public boolean isOnboardingComplete() {
-		List<EmployeeJobFunctionNeed> needs = employeeJobFunctionNeedRepository.findByEmployeeId(this.getId());
-		if(needs.isEmpty()) { return false; }
-		System.out.println(needs.get(1));
-		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
-		System.out.println(statusCompletedId);
+	public boolean isOnboardingComplete(List<EmployeeJobFunctionNeed> needs, int statusCompletedId) {		
 		for(EmployeeJobFunctionNeed need : needs) {
-			System.out.println(need.toString());
 			if(need.getStatus().getId() != statusCompletedId) {
 				return false;
 			}
@@ -78,6 +69,14 @@ public class Employee extends User {
 
 	public void setPosition(JobPosition position) {
 		this.position = position;
+	}
+
+	public Employee getManager() {
+		return manager;
+	}
+
+	public void setManager(Employee manager) {
+		this.manager = manager;
 	}
 
 	public BigDecimal getPay() {
@@ -114,7 +113,7 @@ public class Employee extends User {
 
 	@Override
 	public String toString() {
-		return "Employee [pay=" + pay + ", getPosition()=" + getPosition().getTitle() + ", getPayType()=" + getPayType().getName()
+		return "Employee [id=" + getId() + ", pay=" + pay + ", getPosition()=" + getPosition().getTitle() + ", getPayType()=" + getPayType().getName()
 				+ ", getWorkFrequency()=" + getWorkFrequency().getName() + ", getStatus()=" + getStatus().getName() + "]";
 	}
 }

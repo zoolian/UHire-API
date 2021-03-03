@@ -113,7 +113,7 @@ public class PersonController {
 		.set("firstName", person.getFirstName())
 		.set("lastName", person.getLastName())
 		.set("email", person.getEmail())
-		.set("age", person.getAge());
+		.set("dob", person.getDob());
 		
 		UpdateResult savedPerson = mongoTemplate.updateFirst(query, update, Person.class);
 		

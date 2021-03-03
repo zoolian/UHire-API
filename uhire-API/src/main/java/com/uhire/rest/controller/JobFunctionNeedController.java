@@ -4,6 +4,9 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,6 +30,8 @@ import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.lists.TaskStatus;
 import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
 import com.uhire.rest.repository.JobFunctionNeedRepository;
+import com.uhire.rest.repository.TaskStatusRepository;
+import com.uhire.rest.service.Email;
 import com.uhire.rest.service.InstanceInfoService;
 
 @RestController
@@ -41,6 +47,9 @@ public class JobFunctionNeedController {
 
 	@Autowired
 	private EmployeeJobFunctionNeedRepository employeeJobFunctionNeedRepository;
+	
+	@Autowired
+	private TaskStatusRepository taskStatusRepository;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -117,9 +126,11 @@ public class JobFunctionNeedController {
 	}
 	
 	@PostMapping(path = "/employee")
-	public ResponseEntity<Void> createEmployeeNeed(@Validated @RequestBody EmployeeJobFunctionNeed need) {
+	public ResponseEntity<Void> createEmployeeNeed(@Validated @RequestBody EmployeeJobFunctionNeed need) throws AddressException, MessagingException {
 		need.setId(null); // ensure mongo is creating id
 		need.setStatus(new TaskStatus(1));
+		
+		Email.newNeedNotice(need.getNeed().getNoticeRecipients(), need.getEmployee());
 		
 		EmployeeJobFunctionNeed newNeed = employeeJobFunctionNeedRepository.save(need);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/employee/id/{id}")
@@ -128,13 +139,15 @@ public class JobFunctionNeedController {
 	}
 	
 	@PostMapping(path = "/employee/list")
-	public ResponseEntity<Void> createEmployeeNeeds(@Validated @RequestBody List<EmployeeJobFunctionNeed> needs) {
+	public ResponseEntity<Void> createEmployeeNeeds(@Validated @RequestBody List<EmployeeJobFunctionNeed> needs, @RequestParam boolean newRequest) throws AddressException, MessagingException {
+		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
 		for(EmployeeJobFunctionNeed n : needs) {
-			n.setId(null);
-			n.setStatus(new TaskStatus(1));
-			// prevent duplicates
-			if(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(n.getNeed().getId(), n.getEmployee().getId()).isPresent()) {
-				needs.remove(n);
+			if(newRequest || n.getStatus().getId() == statusCompletedId) { Email.newNeedNotice(n.getNeed().getNoticeRecipients(), n.getEmployee()); }
+			// prevent duplicate if we're on a new one
+			if(n.getId() == null) {
+				if(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(n.getNeed().getId(), n.getEmployee().getId()).isPresent()) {
+					needs.remove(n);
+				}
 			}
 		}
 		
