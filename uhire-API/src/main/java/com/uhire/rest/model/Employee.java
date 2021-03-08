@@ -1,8 +1,8 @@
 package com.uhire.rest.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -16,7 +16,7 @@ import com.uhire.rest.model.lists.WorkFrequency;
 @Document(collection = "person")
 public class Employee extends User {
 	
-	public Employee(String firstName, String lastName, String email, Date dob, String username,
+	public Employee(String firstName, String lastName, String email, LocalDate dob, String username,
 			boolean enabled, Collection<Role> roles) {
 		super(firstName, lastName, email, dob, username, enabled, roles);
 	}
@@ -40,7 +40,7 @@ public class Employee extends User {
 	
 //	private Date joinDate;
 	
-//	private Date terminationDate;
+//	private Date termDate;
 	
 	private BigDecimal pay;
 	

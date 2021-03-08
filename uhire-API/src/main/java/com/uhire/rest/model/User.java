@@ -1,9 +1,8 @@
 package com.uhire.rest.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,18 +28,18 @@ public class User extends Person {
 		super();
 	}
 
-	public User(String firstName, String lastName, String email, Date dob) {
+	public User(String firstName, String lastName, String email, LocalDate dob) {
 		super(firstName, lastName, email, dob);
 	}
 
-	public User(String firstName, String lastName, String email, Date dob, String username, boolean enabled, Collection<Role> roles) {
+	public User(String firstName, String lastName, String email, LocalDate dob, String username, boolean enabled, Collection<Role> roles) {
 		super(firstName, lastName, email, dob);
 		this.username = username;
 		this.enabled = enabled;
 		this.roles = roles;
 	}
 
-	public User(String firstName, String lastName, String email, Date dob, String username, boolean enabled) {
+	public User(String firstName, String lastName, String email, LocalDate dob, String username, boolean enabled) {
 		super(firstName, lastName, email, dob);
 		this.username = username;
 		this.enabled = enabled;

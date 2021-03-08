@@ -7,7 +7,7 @@ metadata:
     networking.gke.io/managed-certificates: api2-jmscottnovels-com-tls
 spec:
   rules:
-  - host: api1.uhirenovels.com
+  - host: api2.jmscottnovels.com
     http:
       paths:
       - backend:

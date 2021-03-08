@@ -1,7 +1,6 @@
 package com.uhire.rest.model;
 
-import java.util.Date;
-
+import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,11 +19,11 @@ public class Person {
 	//private Address address;
 	private String email;
 	
-	private Date dob;
+	private LocalDate dob;
 	
 	public Person() {}
 	
-	public Person(String firstName, String lastName, String email, Date dob) {
+	public Person(String firstName, String lastName, String email, LocalDate dob) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
@@ -72,11 +71,11 @@ public class Person {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public Date getDob() {
+	public LocalDate getDob() {
 		return dob;
 	}
 
-	public void setDob(Date dob) {
+	public void setDob(LocalDate dob) {
 		this.dob = dob;
 	}
 	

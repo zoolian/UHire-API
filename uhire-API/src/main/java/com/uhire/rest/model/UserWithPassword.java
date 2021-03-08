@@ -1,12 +1,12 @@
 package com.uhire.rest.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 public class UserWithPassword extends Person {
 	
-	public UserWithPassword(String firstName, String lastName, String email, Date dob) {
+	public UserWithPassword(String firstName, String lastName, String email, LocalDate dob) {
 		super(firstName, lastName, email, dob);
 	}
 
