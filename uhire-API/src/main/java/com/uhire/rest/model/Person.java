@@ -19,7 +19,7 @@ public class Person {
 	//private Address address;
 	private String email;
 	
-	private LocalDate dob;
+	private LocalDate dob = LocalDate.now();
 	
 	public Person() {}
 	

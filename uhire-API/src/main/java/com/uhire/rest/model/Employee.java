@@ -38,9 +38,9 @@ public class Employee extends User {
 	@DBRef
 	private Employee manager;
 	
-//	private Date joinDate;
+	private LocalDate joinDate = LocalDate.now();
 	
-//	private Date termDate;
+	private LocalDate termDate = LocalDate.now();
 	
 	private BigDecimal pay;
 	
@@ -54,7 +54,7 @@ public class Employee extends User {
 	private EmployeeStatus status;
 	
 	@JsonIgnore
-	public boolean isOnboardingComplete(List<EmployeeJobFunctionNeed> needs, int statusCompletedId) {		
+	public boolean isOnboardingComplete(List<EmployeeJobFunctionNeed> needs, int statusCompletedId) {
 		for(EmployeeJobFunctionNeed need : needs) {
 			if(need.getStatus().getId() != statusCompletedId) {
 				return false;
@@ -77,6 +77,22 @@ public class Employee extends User {
 
 	public void setManager(Employee manager) {
 		this.manager = manager;
+	}
+
+	public LocalDate getJoinDate() {
+		return joinDate;
+	}
+
+	public void setJoinDate(LocalDate joinDate) {
+		this.joinDate = joinDate;
+	}
+
+	public LocalDate getTermDate() {
+		return termDate;
+	}
+
+	public void setTermDate(LocalDate termDate) {
+		this.termDate = termDate;
 	}
 
 	public BigDecimal getPay() {
