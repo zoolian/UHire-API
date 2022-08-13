@@ -1,29 +1,37 @@
 package com.uhire.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Role")
 public class Role {
 
 	@Id
-    private String id;
-	
-    @Indexed(unique = true)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @Column(name = "name")
     private String name;
-    
+
+    @Column(name = "description")
     private String description;
-    
-    
+
+    @Column(name = "enabled")
     private boolean enabled;
 
-    public String getId() {
-        return id;
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
 
-    public void setId(String id) {
-        this.id = id;
+    public long getId() {
+        return id;
     }
 
     public String getName() {
@@ -50,7 +58,15 @@ public class Role {
 		this.enabled = enabled;
 	}
 
-	@Override
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
 	public String toString() {
 		return "Role [id=" + id + ", name=" + name + "]";
 	}

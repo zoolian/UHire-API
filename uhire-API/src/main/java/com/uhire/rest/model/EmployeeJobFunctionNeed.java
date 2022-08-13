@@ -2,30 +2,32 @@ package com.uhire.rest.model;
 
 import java.util.Date;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.uhire.rest.model.lists.TaskStatus;
 
-@Document(collection = "task")
+import javax.persistence.*;
+
+@Entity
+@Table(name = "User")
 public class EmployeeJobFunctionNeed {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private String id;
-	
-	@DBRef
+
+	@Column(name = "employee")
 	private Employee employee;
-	
-	@DBRef
+
+	@Column(name = "need")
 	private JobFunctionNeed need;
-	
-	@DBRef
+
+	@Column(name = "status")
 	private TaskStatus status;
-	
-	@DBRef
+
+	@Column(name = "createUser")
 	private User createUser;
-	
-	@DBRef
+
+	@Column(name = "modifyUser")
 	private User modifyUser;
 	
 	private Date createDate; // This one needs to be set on the front end, otherwise it will get set to "now" every time.

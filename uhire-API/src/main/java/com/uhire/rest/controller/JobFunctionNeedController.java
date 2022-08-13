@@ -97,7 +97,7 @@ public class JobFunctionNeedController {
 	}
 	
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<JobFunctionNeed> deleteJobFunctionNeed(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<JobFunctionNeed> deleteJobFunctionNeed(@PathVariable long id) throws ResourceNotFoundException {
 		JobFunctionNeed deletedNeed = jobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
 		jobFunctionNeedRepository.deleteById(id);
 		
@@ -112,7 +112,7 @@ public class JobFunctionNeedController {
 	}
 	
 	@GetMapping(path = "/employee/id/{id}")
-	public ResponseEntity<EmployeeJobFunctionNeed> getEmployeeNeedById(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<EmployeeJobFunctionNeed> getEmployeeNeedById(@PathVariable long id) throws ResourceNotFoundException {
 		EmployeeJobFunctionNeed need = employeeJobFunctionNeedRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No job need found with id: " + id)
 		);
@@ -121,7 +121,7 @@ public class JobFunctionNeedController {
 	}
 	
 	@GetMapping(path = "/employee/employee/{id}")
-	public List<EmployeeJobFunctionNeed> getEmployeeNeedsByEmployeeId(@PathVariable String id) {
+	public List<EmployeeJobFunctionNeed> getEmployeeNeedsByEmployeeId(@PathVariable long id) {
 		return employeeJobFunctionNeedRepository.findByEmployeeId(id);
 	}
 	

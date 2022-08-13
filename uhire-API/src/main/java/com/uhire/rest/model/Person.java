@@ -2,25 +2,31 @@ package com.uhire.rest.model;
 
 import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
-@CompoundIndex(def = "{'firstname': 1, 'lastname': 1}")
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Person")
 public class Person {
 	
 	@Id
-	private String id;
-	
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	@Column(name = "firstName")
 	private String firstName;
+
+	@Column(name = "lastName")
 	private String lastName;
 	
 	//private Phone phone;
 	//private Address address;
+	@Column(name = "email")
 	private String email;
-	
+
+	@Column(name = "dob")
 	private LocalDate dob = LocalDate.now();
-	
+
 	public Person() {}
 	
 	public Person(String firstName, String lastName, String email, LocalDate dob) {
@@ -29,23 +35,9 @@ public class Person {
 		this.email = email;
 		this.dob = dob;
 	}
-	
-	public Person(String id, String firstName, String lastName, String email) {
-		this.id = id;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
-	}
 
-	public Person(String userId) {
-		this.id = userId;
-	}
-
-	public String getId() {
+	public long getId() {
 		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
 	}
 	public String getFirstName() {
 		return firstName;

@@ -5,52 +5,51 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uhire.rest.model.lists.EmployeeStatus;
 import com.uhire.rest.model.lists.PayType;
 import com.uhire.rest.model.lists.WorkFrequency;
+import org.springframework.data.annotation.Id;
 
-@Document(collection = "person")
-public class Employee extends User {
-	
-	public Employee(String firstName, String lastName, String email, LocalDate dob, String username,
-			boolean enabled, Collection<Role> roles) {
-		super(firstName, lastName, email, dob, username, enabled, roles);
-	}
-	
-	public Employee(String id, String firstName, String lastName, String email) {
-		super(id, firstName, lastName, email);
-	}
+import javax.persistence.*;
+
+@Entity
+@Table(name = "employee")
+public class Employee {
 	
 	public Employee() {
 		super();
 	}
 
-	@DBRef
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	@Column(name = "position")
 	private JobPosition position;
 	
-//	@DBRef
+//	@Column(name = "")
 //	private Department department;
 	
-	@DBRef
+	@Column(name = "manager")
 	private Employee manager;
-	
+
+	@Column(name = "joinDate")
 	private LocalDate joinDate = LocalDate.now();
-	
+
+	@Column(name = "termDate")
 	private LocalDate termDate = LocalDate.now();
-	
+
+	@Column(name = "pay")
 	private BigDecimal pay;
 	
-	@DBRef
+	@Column(name = "payType")
 	private PayType payType;
 	
-	@DBRef
+	@Column(name = "workFrequency")
 	private WorkFrequency workFrequency;
 	
-	@DBRef
+	@Column(name = "status")
 	private EmployeeStatus status;
 	
 	@JsonIgnore
@@ -61,6 +60,10 @@ public class Employee extends User {
 			}
 		}
 		return true;
+	}
+
+	public long getId() {
+		return id;
 	}
 
 	public JobPosition getPosition() {

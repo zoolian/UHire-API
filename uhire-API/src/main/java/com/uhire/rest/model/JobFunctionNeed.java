@@ -4,28 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import javax.persistence.*;
+
+@Entity
+@Table(name = "User")
 public class JobFunctionNeed {
-	
+
 	@Id
-	private String id;
-	
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	@Column(name = "name")
 	private String name;
-	
+
+	@Column(name = "description")
 	private String description;
-	
+
+	@Column(name = "noticeRecipients")
 	private List<Person> noticeRecipients = new ArrayList<>();
-	
+
+	@Column(name = "enabled")
 	private boolean enabled = true;
 
-	public String getId() {
+	public long getId() {
 		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getName() {

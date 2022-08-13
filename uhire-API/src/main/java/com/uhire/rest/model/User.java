@@ -3,55 +3,31 @@ package com.uhire.rest.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mongodb.DBRef;
+import org.springframework.data.annotation.Id;
+
+import javax.persistence.*;
 
 //@QueryEntity
-@Document(collection = "person")
-public class User extends Person {
+@Entity
+@Table(name = "User")
+public class User {
 
-	@Indexed(unique = true)
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	@Column(name = "position")
 	private String username;
-	
-	private boolean enabled;
+
+	@Column(name = "enabled")
+	private boolean enabled = true;
 	
 	// don't cascade save roles. on the front end, there's no reason to hold all the fields ...
 	// they should be changed in the role manager
-	@org.springframework.data.mongodb.core.mapping.DBRef
+	@OneToMany(mappedBy = "user")
 	private Collection<Role> roles = new ArrayList<Role>();
-	
-	public User() {
-		super();
-	}
-
-	public User(String firstName, String lastName, String email, LocalDate dob) {
-		super(firstName, lastName, email, dob);
-	}
-
-	public User(String firstName, String lastName, String email, LocalDate dob, String username, boolean enabled, Collection<Role> roles) {
-		super(firstName, lastName, email, dob);
-		this.username = username;
-		this.enabled = enabled;
-		this.roles = roles;
-	}
-
-	public User(String firstName, String lastName, String email, LocalDate dob, String username, boolean enabled) {
-		super(firstName, lastName, email, dob);
-		this.username = username;
-		this.enabled = enabled;
-	}
-
-	public User(String id, String firstName, String lastName, String email) {
-		super(id, firstName, lastName, email);
-	}
-
-	public User(String userId) {
-		super(userId);
-	}
 
 	@JsonIgnore
 	public Collection<DBRef> getDBRefRoles() {
@@ -61,7 +37,11 @@ public class User extends Person {
 		}
 		return dbRefRoles;
 	}
-	
+
+	public long getId() {
+		return id;
+	}
+
 	public String getUsername() {
 		return username;
 	}
