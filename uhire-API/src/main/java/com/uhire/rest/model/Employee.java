@@ -2,7 +2,6 @@ package com.uhire.rest.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -64,6 +63,10 @@ public class Employee {
 
 	public long getId() {
 		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public JobPosition getPosition() {
@@ -135,4 +138,5 @@ public class Employee {
 		return "Employee [id=" + getId() + ", pay=" + pay + ", getPosition()=" + getPosition().getTitle() + ", getPayType()=" + getPayType().getName()
 				+ ", getWorkFrequency()=" + getWorkFrequency().getName() + ", getStatus()=" + getStatus().getName() + "]";
 	}
+
 }

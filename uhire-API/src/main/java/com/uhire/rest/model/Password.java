@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Password {
 	@Id
-	private String id;
+	private long id;
 	
 	private String personId;
 	
@@ -21,7 +21,7 @@ public class Password {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

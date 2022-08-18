@@ -112,7 +112,7 @@ public class JwtAuthenticationRestController {
   
   // TODO: deploy smtp
   @PostMapping(value = "/reset/{id}")
-  public ResponseEntity<?> passwordResetEmail(@PathVariable String id, @RequestBody String email) throws IOException, MessagingException {
+  public ResponseEntity<?> passwordResetEmail(@PathVariable long id, @RequestBody String email) throws IOException, MessagingException {
 	  Properties prop = new Properties();	  
 	  prop.put("mail.smtp.auth", true);
 	  prop.put("mail.smtp.starttls.enable", "true");

@@ -69,7 +69,7 @@ public class EmployeeController {
 	}
 	
 	@GetMapping(path = "/id/{id}")
-	public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<Employee> getEmployeeById(@PathVariable long id) throws ResourceNotFoundException {
 		Employee employee = employeeRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No Employee found with id: " + id)
 		);
@@ -94,7 +94,7 @@ public class EmployeeController {
 	// TODO: implement EmployeeJobFunctionNeed saving employee and need fields
 	// TODO: integrity check with exception throw
 	@PostMapping
-	public ResponseEntity<String> createEmployee(@Validated @RequestBody Employee employee, @RequestParam String userId) throws ResourceNotFoundException {
+	public ResponseEntity<Long> createEmployee(@Validated @RequestBody Employee employee, @RequestParam long userId) throws ResourceNotFoundException {
 		personRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + userId) );
 		employee.setId(null); // ensure mongo is creating id
 		
@@ -103,14 +103,14 @@ public class EmployeeController {
 		Employee newEmp = employeeRepository.save(employee);
 		//URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
 		//		.buildAndExpand(newEmp.getId()).toUri();
-		return new ResponseEntity<String>(newEmp.getId(), HttpStatus.CREATED);
+		return new ResponseEntity<Long>(newEmp.getId(), HttpStatus.CREATED);
 	}
 	
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<Employee> updateEmployee(
-			@PathVariable String id,
+			@PathVariable long id,
 			@RequestParam(required = false) boolean positionChanged,
-			@RequestParam String userId,
+			@RequestParam long userId,
 			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
 		personRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + userId) );
@@ -131,7 +131,7 @@ public class EmployeeController {
 	}
 	
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<Employee> deleteEmployee(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<Employee> deleteEmployee(@PathVariable long id) throws ResourceNotFoundException {
 		Employee deletedEmployee = employeeRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No employee found with id " + id) );
 		employeeRepository.deleteById(id);
 		
@@ -142,7 +142,7 @@ public class EmployeeController {
 	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
 	// as this is the only state in which the request hasn't been sent yet.
 	// ********************************************************************************
-	private Employee getDefaultsFromPosition(Employee employee, String userId) {
+	private Employee getDefaultsFromPosition(Employee employee, long userId) {
 		JobPosition position = jobPositionRespository.getById(employee.getPosition().getId()); // the front end only deals with the id, so grab the full object
 		if(employee.getPay() == null || employee.getPay().compareTo(new BigDecimal("0")) == 0 ) {
 			employee.setPay(position.getDefaultPay()) ;

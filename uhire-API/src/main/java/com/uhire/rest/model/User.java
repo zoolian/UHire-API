@@ -27,16 +27,19 @@ public class User {
 	// don't cascade save roles. on the front end, there's no reason to hold all the fields ...
 	// they should be changed in the role manager
 	@OneToMany(mappedBy = "user")
-	private Collection<Role> roles = new ArrayList<Role>();
+	private Collection<Role> roles = new ArrayList<>();
 
-	@JsonIgnore
-	public Collection<DBRef> getDBRefRoles() {
-		Collection<DBRef> dbRefRoles = new ArrayList<DBRef>();
-		for(Role r : this.getRoles()) {
-			dbRefRoles.add(new DBRef("role", new ObjectId(r.getId())));
-		}
-		return dbRefRoles;
+	public User(String userId) {
 	}
+
+//	@JsonIgnore
+//	public Collection<DBRef> getDBRefRoles() {
+//		Collection<DBRef> dbRefRoles = new ArrayList<DBRef>();
+//		for(Role r : this.getRoles()) {
+//			dbRefRoles.add(new DBRef("role", new ObjectId(r.getId())));
+//		}
+//		return dbRefRoles;
+//	}
 
 	public long getId() {
 		return id;

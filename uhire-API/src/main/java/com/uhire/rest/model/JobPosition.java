@@ -15,7 +15,7 @@ import com.uhire.rest.model.lists.WorkFrequency;
 public class JobPosition {
 
 	@Id
-	private String id;
+	private long id;
 	
 	private String title;
 	
@@ -36,11 +36,11 @@ public class JobPosition {
 	
 	private boolean enabled = true;
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

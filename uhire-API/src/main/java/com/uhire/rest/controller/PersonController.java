@@ -60,7 +60,7 @@ public class PersonController {
 	}
 	
 	@GetMapping(path = "/id/{id}")
-	public ResponseEntity<Person> getPersonById(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<Person> getPersonById(@PathVariable long id) throws ResourceNotFoundException {
 		Person person = personRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No Person found with id: " + id)
 		);
@@ -96,14 +96,14 @@ public class PersonController {
 	}
 	
 	// *******************************************************
-	// MongoRepository.save() replaces instead of updating.
+	// JpaRepository.save() replaces instead of updating.
 	// The following PUT method needs to be used on all involved super classes
 	// in order to no overwrite fields that don't exist in the super class
 	// TODO: verify this PUT
 	// *******************************************************
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<UpdateResult> updatePerson(
-			@PathVariable String id,
+			@PathVariable long id,
 			@Validated @RequestBody Person person) throws ResourceNotFoundException, AddressException, MessagingException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
 		
@@ -121,7 +121,7 @@ public class PersonController {
 	}
 	
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<Person> deletePerson(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<Person> deletePerson(@PathVariable long id) throws ResourceNotFoundException {
 		Person deletedPerson = personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
 		personRepository.deleteById(id);
 		

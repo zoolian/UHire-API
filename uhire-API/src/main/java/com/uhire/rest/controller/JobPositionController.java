@@ -45,7 +45,7 @@ public class JobPositionController {
 	}
 	
 	@GetMapping(path = "/id/{id}")
-	public ResponseEntity<JobPosition> getJobPositionById(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<JobPosition> getJobPositionById(@PathVariable long id) throws ResourceNotFoundException {
 		JobPosition position = jobPositionRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No job found with id: " + id)
 		);
@@ -65,7 +65,7 @@ public class JobPositionController {
 	
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<JobPosition> updateJobPosition(
-			@PathVariable String id,
+			@PathVariable long id,
 			@Validated @RequestBody JobPosition position) throws ResourceNotFoundException {
 		jobPositionRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job found with id " + id) );
 		JobPosition savedPosition = jobPositionRepository.save(position);
@@ -74,7 +74,7 @@ public class JobPositionController {
 	}
 	
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<JobPosition> deleteJobPosition(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<JobPosition> deleteJobPosition(@PathVariable long id) throws ResourceNotFoundException {
 		JobPosition deletedPosition = jobPositionRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job found with id " + id) );
 		jobPositionRepository.deleteById(id);
 		

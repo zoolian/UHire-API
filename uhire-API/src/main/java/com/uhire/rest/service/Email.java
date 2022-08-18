@@ -25,7 +25,7 @@ public class Email {
 	public static void processNeedsCompleted(List<EmployeeJobFunctionNeed> needs, Employee employee) throws AddressException, MessagingException {
 		// ***!!!!!!!!! CHANGE THIS TO GET THE MANAGERS' EMAILS TO SEND NOTICE OF COMPLETION
 		String recipients = "";
-		String id = employee.getId();
+		long id = employee.getId();
 		String name = employee.getFirstName() + " " + employee.getLastName();
 		for(EmployeeJobFunctionNeed need : needs) {
 			recipients += need.getCreateUser().getEmail();
@@ -44,7 +44,7 @@ public class Email {
 
 	public static void newNeedNotice(List<Person> noticeRecipients, Employee employee) throws AddressException, MessagingException {
 		String recipients = "";
-		String id = employee.getId();
+		long id = employee.getId();
 		String name = employee.getFirstName() + " " + employee.getLastName();
 		if(!noticeRecipients.isEmpty()) {
 			for(Person recipient : noticeRecipients) {
@@ -58,7 +58,7 @@ public class Email {
 		}		
 	}
 	
-	private static void send(String id, String name, String recipients) throws AddressException, MessagingException {
+	private static void send(long id, String name, String recipients) throws AddressException, MessagingException {
 		Properties prop = new Properties();
 		prop.put("mail.smtp.auth", true);
 		prop.put("mail.smtp.starttls.enable", "true");

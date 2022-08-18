@@ -62,7 +62,7 @@ public class JobFunctionNeedController {
 	}
 	
 	@GetMapping(path = "/id/{id}")
-	public ResponseEntity<JobFunctionNeed> getJobFunctionNeedById(@PathVariable String id) throws ResourceNotFoundException {
+	public ResponseEntity<JobFunctionNeed> getJobFunctionNeedById(@PathVariable long id) throws ResourceNotFoundException {
 		JobFunctionNeed need = jobFunctionNeedRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No job need found with id: " + id)
 		);
@@ -88,7 +88,7 @@ public class JobFunctionNeedController {
 	
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<JobFunctionNeed> updateJobFunctionNeed(
-			@PathVariable String id,
+			@PathVariable long id,
 			@Validated @RequestBody JobFunctionNeed need) throws ResourceNotFoundException {
 		jobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
 		JobFunctionNeed savedNeed = jobFunctionNeedRepository.save(need);
@@ -159,7 +159,7 @@ public class JobFunctionNeedController {
 	
 	@PutMapping(path = "/employee/{id}")
 	public ResponseEntity<EmployeeJobFunctionNeed> updateEmployeeNeed(
-			@PathVariable String id,
+			@PathVariable long id,
 			@Validated @RequestBody EmployeeJobFunctionNeed need) throws ResourceNotFoundException {
 		employeeJobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
 		need.setModifyDate(new Date());	// back end setter to guarantee precision
@@ -173,7 +173,7 @@ public class JobFunctionNeedController {
 	// as this is the only state in which the request hasn't been sent yet.
 	// ********************************************************************************
 	@DeleteMapping(path = "/employee/{id}")
-	public ResponseEntity<EmployeeJobFunctionNeed> deleteEmployeeNeed(@PathVariable String id) throws ResourceNotFoundException, ForbiddenException {
+	public ResponseEntity<EmployeeJobFunctionNeed> deleteEmployeeNeed(@PathVariable long id) throws ResourceNotFoundException, ForbiddenException {
 		EmployeeJobFunctionNeed deletedNeed = employeeJobFunctionNeedRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job need found with id " + id) );
 		if(deletedNeed.getStatus().getId() != 1) {
 			throw new ForbiddenException("Task already being processed");
