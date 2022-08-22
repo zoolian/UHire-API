@@ -1,13 +1,15 @@
 //*****************************************************************************
 // ID 1 is hard coded as the only value that allows delete operation to be applied,
-// as this is the only state in which the request hasn't been sent yet.
+// as this is the only state in which the task request hasn't been sent yet.
 // ID 2 is hard coded as pending.
 // ********************************************************************************
 package com.uhire.rest.model.lists;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Document
+@Entity
+@Table(name = "TaskStatus")
 public class TaskStatus extends SimpleEnumeration {
 
 	public TaskStatus(int id) {

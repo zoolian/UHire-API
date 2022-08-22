@@ -1,17 +1,16 @@
 package com.uhire.rest.model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 
 //@QueryEntity
 @Entity
-@Table(name = "User")
+@Table(name = "user")
 public class User {
 
 	@Id
@@ -26,11 +25,17 @@ public class User {
 	
 	// don't cascade save roles. on the front end, there's no reason to hold all the fields ...
 	// they should be changed in the role manager
-	@OneToMany(mappedBy = "user")
-	private Collection<Role> roles = new ArrayList<>();
+	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@JoinTable(name = "UserRole",
+			joinColumns = {@JoinColumn(name = "user_ID", referencedColumnName = "id")},
+			inverseJoinColumns = {@JoinColumn(name = "role_ID", referencedColumnName = "id")})
+	private Set<Role> roles;
 
-	public User(String userId) {
+	public User(long userId) {
 	}
+
+    public User(String firstName, String lastName, String email, LocalDate dob, String username, boolean b) {
+    }
 
 //	@JsonIgnore
 //	public Collection<DBRef> getDBRefRoles() {
@@ -65,16 +70,17 @@ public class User {
 		return roles;
 	}
 
-	public void setRoles(Collection<Role> roles) {
+	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
 
 	@Override
 	public String toString() {
-		return "User2 [username=" + username + ", enabled=" + enabled + ", roles=" + roles + ", getId()=" + getId()
-				+ ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getEmail()="
-				+ getEmail() + ", getDob()=" + getDob() + ", toString()=" + super.toString() + ", getClass()="
-				+ getClass() + ", hashCode()=" + hashCode() + "]";
-	}	
-	
+		return "User{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", enabled=" + enabled +
+				", roles=" + roles +
+				'}';
+	}
 }

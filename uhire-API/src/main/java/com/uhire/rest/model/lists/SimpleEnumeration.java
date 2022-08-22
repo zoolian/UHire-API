@@ -2,10 +2,13 @@ package com.uhire.rest.model.lists;
 
 import org.springframework.data.annotation.Id;
 
+import javax.persistence.Column;
+
 public class SimpleEnumeration {
 	@Id
-	int id;
-	
+	long id;
+
+	@Column(name = "name")
 	String name;
 
 	public SimpleEnumeration() {
@@ -20,7 +23,7 @@ public class SimpleEnumeration {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

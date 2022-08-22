@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "User")
+@Table(name = "jobFunctionNeed")
 public class JobFunctionNeed {
 
 	@Id
@@ -29,6 +29,10 @@ public class JobFunctionNeed {
 
 	public long getId() {
 		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -68,5 +72,5 @@ public class JobFunctionNeed {
 		return "JobFunctionNeed [id=" + id + ", name=" + name + ", description=" + description + ", noticeRecipients="
 				+ noticeRecipients + ", enabled=" + enabled + "]";
 	}
-	
+
 }

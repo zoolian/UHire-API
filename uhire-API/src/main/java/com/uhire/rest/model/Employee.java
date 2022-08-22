@@ -27,7 +27,7 @@ public class Employee {
 	@Column(name = "position")
 	private JobPosition position;
 	
-//	@Column(name = "")
+//	@Column(name = "department")
 //	private Department department;
 	
 	@Column(name = "manager")
@@ -50,9 +50,15 @@ public class Employee {
 	
 	@Column(name = "status")
 	private EmployeeStatus status;
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@JoinTable(name = "employeeNeeds",
+			joinColumns = {@JoinColumn(name = "employee_id", referencedColumnName = "id")},
+			inverseJoinColumns = {@JoinColumn(name = "need_id", referencedColumnName = "id")})
+	private List<JobFunctionNeed> needs;
 	
 	@JsonIgnore
-	public boolean isOnboardingComplete(List<EmployeeJobFunctionNeed> needs, int statusCompletedId) {
+	public boolean isOnboardingComplete(List<EmployeeJobFunctionNeed> needs, long statusCompletedId) {
 		for(EmployeeJobFunctionNeed need : needs) {
 			if(need.getStatus().getId() != statusCompletedId) {
 				return false;
@@ -132,6 +138,10 @@ public class Employee {
 	public void setStatus(EmployeeStatus status) {
 		this.status = status;
 	}
+
+	public List<JobFunctionNeed> getNeeds() { return needs;	}
+
+	public void setNeeds(List<JobFunctionNeed> needs) {	this.needs = needs;	}
 
 	@Override
 	public String toString() {

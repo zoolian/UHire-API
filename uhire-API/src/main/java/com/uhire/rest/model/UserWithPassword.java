@@ -16,7 +16,7 @@ public class UserWithPassword extends Person {
 	
 	private boolean enabled;
 
-	private Collection<Role> roles = new ArrayList<Role>();
+	private Collection<Role> roles = new ArrayList<>();
 
 	public String getUsername() {
 		return username;

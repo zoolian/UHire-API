@@ -1,8 +1,10 @@
 package com.uhire.rest.model.lists;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Document
+@Entity
+@Table(name = "WorkFrequency")
 public class WorkFrequency extends SimpleEnumeration {
 
 	public WorkFrequency(int id) {

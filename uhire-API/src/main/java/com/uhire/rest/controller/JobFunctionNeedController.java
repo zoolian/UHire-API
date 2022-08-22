@@ -77,7 +77,7 @@ public class JobFunctionNeedController {
 	//****************************************************************************
 	@PostMapping
 	public ResponseEntity<Void> createJobFunctionNeed(@Validated @RequestBody JobFunctionNeed need) {
-		need.setId(null); // ensure mongo is creating id
+		need.setId(0);
 		need.setEnabled(true);
 		
 		JobFunctionNeed newNeed = jobFunctionNeedRepository.save(need);
@@ -127,7 +127,7 @@ public class JobFunctionNeedController {
 	
 	@PostMapping(path = "/employee")
 	public ResponseEntity<Void> createEmployeeNeed(@Validated @RequestBody EmployeeJobFunctionNeed need) throws AddressException, MessagingException {
-		need.setId(null); // ensure mongo is creating id
+		need.setId(0); // ensure mongo is creating id
 		need.setStatus(new TaskStatus(1));
 		
 		Email.newNeedNotice(need.getNeed().getNoticeRecipients(), need.getEmployee());
@@ -143,8 +143,9 @@ public class JobFunctionNeedController {
 		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
 		for(EmployeeJobFunctionNeed n : needs) {
 			if(newRequest || n.getStatus().getId() == statusCompletedId) { Email.newNeedNotice(n.getNeed().getNoticeRecipients(), n.getEmployee()); }
+
 			// prevent duplicate if we're on a new one
-			if(n.getId() == null) {
+			if(n.getId() == 0) {
 				if(employeeJobFunctionNeedRepository.findByNeedIdAndEmployeeId(n.getNeed().getId(), n.getEmployee().getId()).isPresent()) {
 					needs.remove(n);
 				}

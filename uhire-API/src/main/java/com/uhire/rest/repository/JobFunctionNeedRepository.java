@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.uhire.rest.model.JobFunctionNeed;
 
 @Repository
-public interface JobFunctionNeedRepository extends JpaRepository<JobFunctionNeed, String>, QuerydslPredicateExecutor<JobFunctionNeed> {
+public interface JobFunctionNeedRepository extends JpaRepository<JobFunctionNeed, Long>, QuerydslPredicateExecutor<JobFunctionNeed> {
 
 }

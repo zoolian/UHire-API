@@ -1,19 +1,24 @@
 package com.uhire.rest.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Phone")
 public class Phone {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
+
+	@Column(name = "country")
 	private String country = "+1";
+
+	@Column(name = "area")
 	private String area;
-	
-	@Indexed(unique = true)
+
+	@Column(name = "subscriber")
 	private String subscriber;
 
 	

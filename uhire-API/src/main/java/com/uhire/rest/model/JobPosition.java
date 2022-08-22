@@ -5,34 +5,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.uhire.rest.model.lists.PayType;
 import com.uhire.rest.model.lists.WorkFrequency;
 
-@Document
+import javax.persistence.*;
+
+@Entity
+@Table(name = "jobPosition")
 public class JobPosition {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
+
+	@Column(name = "title")
 	private String title;
-	
+
+	@Column(name = "description")
 	private String description;
-	
+
+	@Column(name = "maxPay")
 	private BigDecimal maxPay;
-	
+
+	@Column(name = "defaultPay")
 	private BigDecimal defaultPay;
-	
-	@DBRef
+
+	@OneToOne
+	@JoinColumn(name="defaultPayType_id")
 	private PayType defaultPayType;
-	
-	@DBRef
+
+	@OneToOne
+	@JoinColumn(name="defaultWorkFrequency_id")
 	private WorkFrequency defaultWorkFrequency;
-	
-	@DBRef
-	private List<JobFunctionNeed> defaultNeeds = new ArrayList<>();
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@JoinTable(name = "defaultJobPositionNeeds",
+			joinColumns = {@JoinColumn(name = "jobPosition_id", referencedColumnName = "id")},
+			inverseJoinColumns = {@JoinColumn(name = "need_id", referencedColumnName = "id")})
+	private List<JobFunctionNeed> defaultNeeds;
 	
 	private boolean enabled = true;
 

@@ -1,14 +1,11 @@
 package com.uhire.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Role")
+@Table(name = "role")
 public class Role {
 
 	@Id
@@ -23,12 +20,6 @@ public class Role {
 
     @Column(name = "enabled")
     private boolean enabled;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private User user;
 
     public long getId() {
         return id;
@@ -57,14 +48,6 @@ public class Role {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     @Override
 	public String toString() {

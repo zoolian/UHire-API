@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
+
+import com.uhire.rest.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,6 @@ import com.uhire.rest.model.JobFunctionNeed;
 import com.uhire.rest.model.JobPosition;
 import com.uhire.rest.model.User;
 import com.uhire.rest.model.lists.TaskStatus;
-import com.uhire.rest.repository.EmployeeJobFunctionNeedRepository;
-import com.uhire.rest.repository.EmployeeRepository;
-import com.uhire.rest.repository.JobPositionRepository;
-import com.uhire.rest.repository.PersonRepository;
-import com.uhire.rest.repository.TaskStatusRepository;
 import com.uhire.rest.service.Email;
 import com.uhire.rest.service.InstanceInfoService;
 
@@ -48,6 +45,9 @@ public class EmployeeController {
 
 	@Autowired
 	private PersonRepository personRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private JobPositionRepository jobPositionRespository;
@@ -110,10 +110,10 @@ public class EmployeeController {
 	public ResponseEntity<Employee> updateEmployee(
 			@PathVariable long id,
 			@RequestParam(required = false) boolean positionChanged,
-			@RequestParam long userId,
+			@RequestParam long userId,		// an employee has to be a user first, so we need to error check this
 			@Validated @RequestBody Employee employee) throws ResourceNotFoundException, AddressException, MessagingException {
-		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + id) );
-		personRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No one found with id " + userId) );
+		employeeRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No employee found with id " + id) );
+		userRepository.findById(userId).orElseThrow( () -> new ResourceNotFoundException("No user found with id " + userId) );
 		int statusCompletedId = taskStatusRepository.findByName("COMPLETED").getId();
 		
 		if(positionChanged) {
@@ -127,7 +127,7 @@ public class EmployeeController {
 			Email.processNeedsCompleted(needs, savedEmployee);
 		}
 		
-		return new ResponseEntity<Employee>(savedEmployee, HttpStatus.OK);
+		return new ResponseEntity<>(savedEmployee, HttpStatus.OK);
 	}
 	
 	@DeleteMapping(path = "/{id}")
@@ -135,12 +135,12 @@ public class EmployeeController {
 		Employee deletedEmployee = employeeRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No employee found with id " + id) );
 		employeeRepository.deleteById(id);
 		
-		return new ResponseEntity<Employee>(deletedEmployee, HttpStatus.OK);
+		return new ResponseEntity<>(deletedEmployee, HttpStatus.OK);
 	}
 	
 	//*********************************************************************************
 	// TaskStatus ID 1 is hardcoded as the only value that allows delete operation to be applied,
-	// as this is the only state in which the request hasn't been sent yet.
+	// as this is the only state in which the task request hasn't been sent yet.
 	// ********************************************************************************
 	private Employee getDefaultsFromPosition(Employee employee, long userId) {
 		JobPosition position = jobPositionRespository.getById(employee.getPosition().getId()); // the front end only deals with the id, so grab the full object
@@ -165,7 +165,7 @@ public class EmployeeController {
 	
 	// hard coded ID 1
 	// this will only ever be called for new entries, so createUser and modifyUser will be the same person
-	private List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs, String userId) {
+	private List<EmployeeJobFunctionNeed> populateEmployeeNeedsFromJobDefaults(Employee employee, List<JobFunctionNeed> needs, long userId) {
 		User user = new User(userId);
 		Date date = new Date();
 		List<EmployeeJobFunctionNeed> newNeedList = new ArrayList<>();

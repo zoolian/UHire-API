@@ -2,13 +2,7 @@ package com.uhire.rest.controller;
 
 import java.net.URI;
 import java.util.List;
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.mongodb.client.result.UpdateResult;
 import com.uhire.rest.exception.ResourceNotFoundException;
 import com.uhire.rest.model.Person;
 import com.uhire.rest.repository.EmployeeRepository;
@@ -44,9 +36,6 @@ public class PersonController {
 	
 	@Autowired
 	private InstanceInfoService instanceInfoService;
-	
-	@Autowired
-	private MongoTemplate mongoTemplate;
 	     
 	@GetMapping(path = "/health-check")
 	public ResponseEntity<?> healthCheck() {
@@ -61,13 +50,14 @@ public class PersonController {
 	
 	@GetMapping(path = "/id/{id}")
 	public ResponseEntity<Person> getPersonById(@PathVariable long id) throws ResourceNotFoundException {
-		Person person = personRepository.findById(id).orElseThrow(
+		Person person = (Person) personRepository.findById(id).orElseThrow(
 			() -> new ResourceNotFoundException("No Person found with id: " + id)
 		);
 		
 		return ResponseEntity.ok(person);
 	}
 	
+	// Handle single name entry
 	@GetMapping(path = "/name/{name}")
 	public List<Person> getPersonsByName(@PathVariable String name, @RequestParam(required = false) String isEmployee) {
 		List<Person> persons = personRepository.findByFirstNameLikeIgnoreCase(name);
@@ -77,6 +67,7 @@ public class PersonController {
 	}
 	
 	// TODO: prevent duplicates
+	// Handle entry of two strings. Front end can deal with a comma. This method can handle first and last in either order.
 	@GetMapping(path = "/firstName/{firstName}/lastName/{lastName}")
 	public List<Person> getPersonsByName(@PathVariable String firstName, @PathVariable String lastName, @RequestParam(required = false) String isEmployee) {
 		List<Person> persons = personRepository.findByFirstNameLikeAndLastNameLikeIgnoreCase(firstName, lastName);
@@ -87,7 +78,7 @@ public class PersonController {
 	
 	@PostMapping
 	public ResponseEntity<Void> createPerson(@Validated @RequestBody Person person) {
-		person.setId(null); // ensure mongo is creating id
+		person.setId(0); // ensure mongo is creating id
 		
 		Person newPerson = personRepository.save(person);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
@@ -98,39 +89,32 @@ public class PersonController {
 	// *******************************************************
 	// JpaRepository.save() replaces instead of updating.
 	// The following PUT method needs to be used on all involved super classes
-	// in order to no overwrite fields that don't exist in the super class
+	// in order to not overwrite fields that don't exist in the super class
 	// TODO: verify this PUT
 	// *******************************************************
 	@PutMapping(path = "/{id}")
-	public ResponseEntity<UpdateResult> updatePerson(
+	public ResponseEntity<Person> updatePerson(
 			@PathVariable long id,
-			@Validated @RequestBody Person person) throws ResourceNotFoundException, AddressException, MessagingException {
+			@Validated @RequestBody Person person) throws ResourceNotFoundException {
 		personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
+
+		Person savedPerson = personRepository.save(person);
 		
-		Query query = new Query().addCriteria(Criteria.where("_id").is(id));
-		
-		Update update = new Update()
-		.set("firstName", person.getFirstName())
-		.set("lastName", person.getLastName())
-		.set("email", person.getEmail())
-		.set("dob", person.getDob());
-		
-		UpdateResult savedPerson = mongoTemplate.updateFirst(query, update, Person.class);
-		
-		return new ResponseEntity<UpdateResult>(savedPerson, HttpStatus.OK);
+		return new ResponseEntity<>(savedPerson, HttpStatus.OK);
 	}
 	
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Person> deletePerson(@PathVariable long id) throws ResourceNotFoundException {
-		Person deletedPerson = personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
+		Person deletedPerson = (Person) personRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No person found with id " + id) );
 		personRepository.deleteById(id);
 		
-		return new ResponseEntity<Person>(deletedPerson, HttpStatus.OK);
+		return new ResponseEntity<>(deletedPerson, HttpStatus.OK);
 	}
-	
+
+	// Combline two lists for when we search names considering [first last] or [last, first]
 	private List<Person> combineAndFilterByIsEmployee(List<Person> persons1, List<Person> persons2, String isEmployee) {
 		for(Person pbl : persons2) {
-			if(!persons1.stream().filter(p -> p.getId().equals(pbl.getId())).findFirst().isPresent()) {
+			if(persons1.stream().noneMatch(p -> p.getId() == pbl.getId())) {
 				persons1.add(pbl);
 			}
 		}

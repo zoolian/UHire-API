@@ -1,23 +1,28 @@
 package com.uhire.rest.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import javax.persistence.*;
+
+@Entity
+@Table(name = "password")
 public class Password {
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
+
+	@Column(name = "personId")
 	private String personId;
-	
+
+	@Column(name = "password")
 	private String password;
 
-	public Password(String personId, String password) {
+	public Password(long personId, String password) {
 		this.personId = personId;
 		this.password = password;
 	}
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 

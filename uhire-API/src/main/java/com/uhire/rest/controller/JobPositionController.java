@@ -55,7 +55,7 @@ public class JobPositionController {
 	
 	@PostMapping
 	public ResponseEntity<Void> createJobPosition(@Validated @RequestBody JobPosition position) {
-		position.setId(null); // ensure mongo is creating id
+		position.setId(0);
 		
 		JobPosition newPosition = jobPositionRepository.save(position);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/id/{id}")
@@ -78,7 +78,7 @@ public class JobPositionController {
 		JobPosition deletedPosition = jobPositionRepository.findById(id).orElseThrow( () -> new ResourceNotFoundException("No job found with id " + id) );
 		jobPositionRepository.deleteById(id);
 		
-		return new ResponseEntity<JobPosition>(deletedPosition, HttpStatus.OK);
+		return new ResponseEntity<>(deletedPosition, HttpStatus.OK);
 	}
 	
 }

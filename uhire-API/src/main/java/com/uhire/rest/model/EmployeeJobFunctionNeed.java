@@ -8,20 +8,24 @@ import com.uhire.rest.model.lists.TaskStatus;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "User")
+@Table(name = "employeeJobFunctionNeed")
 public class EmployeeJobFunctionNeed {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	@Column(name = "employee")
+
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "employee_id")
 	private Employee employee;
 
-	@Column(name = "need")
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "jobFunctionNeed_id")
 	private JobFunctionNeed need;
 
-	@Column(name = "status")
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "taskStatus_id")
 	private TaskStatus status;
 
 	@Column(name = "createUser")
@@ -55,7 +59,7 @@ public class EmployeeJobFunctionNeed {
 		this.modifyDate = modifyDate;
 	}
 	
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
